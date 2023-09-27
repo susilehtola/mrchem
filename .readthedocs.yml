@@ -10,4 +10,9 @@ formats:
 python:
   version: 3.6
   install:
-    - requirements: docs/requirements.txt
+    - requirements:
+      - yaml
+      - matplotlib
+      - recommonmark
+      - sphinx
+      - breathe
