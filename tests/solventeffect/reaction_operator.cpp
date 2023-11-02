@@ -38,10 +38,12 @@
 #include "chemistry/Element.h"
 #include "chemistry/Nucleus.h"
 #include "chemistry/PeriodicTable.h"
+#include "chemistry/chemistry_utils.h"
 #include "environment/Cavity.h"
 #include "environment/Permittivity.h"
 #include "environment/SCRF.h"
 #include "qmfunctions/Orbital.h"
+#include "qmfunctions/density_utils.h"
 #include "qmfunctions/orbital_utils.h"
 #include "qmoperators/two_electron/ReactionOperator.h"
 
@@ -85,14 +87,22 @@ TEST_CASE("ReactionOperator", "[reaction_operator]") {
     HydrogenFunction f(1, 0, 0);
     if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f, NUMBER::Real, prec);
 
+    auto rho_nuc = chemistry::compute_nuclear_density(prec, molecule, 100);
+
     int kain = 4;
-    auto scrf_p = std::make_unique<SCRF>(dielectric_func, molecule, P_p, D_p, prec, kain, 100, true, false, "total");
+    auto scrf_p = std::make_unique<SCRF>(dielectric_func, rho_nuc, P_p, D_p, kain, 100, false, "total");
 
     auto Reo = std::make_shared<ReactionOperator>(std::move(scrf_p), Phi_p);
     Reo->setup(prec);
-    double total_energy = Reo->getTotalEnergy();
+
+    Density rho_el(false);
+    density::compute(prec, rho_el, Phi, DensityType::Total);
+    rho_el.rescale(-1.0);
+
+    auto [Er_nuc, Er_el] = Reo->getHelper()->computeEnergies(rho_el);
+    auto total_energy = Er_nuc + Er_el;
     Reo->clear();
-    REQUIRE(total_energy == Approx(-0.191434124263).epsilon(thrs));
+    REQUIRE(total_energy == Approx(-1.022729683846e-01).epsilon(thrs));
 }
 
 } // namespace reaction_operator

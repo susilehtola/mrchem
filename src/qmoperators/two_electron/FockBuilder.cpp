@@ -36,6 +36,7 @@
 #include "chemistry/chemistry_utils.h"
 #include "properties/SCFEnergy.h"
 #include "qmfunctions/Orbital.h"
+#include "qmfunctions/density_utils.h"
 #include "qmfunctions/orbital_utils.h"
 #include "qmoperators/one_electron/ElectricFieldOperator.h"
 #include "qmoperators/one_electron/IdentityOperator.h"
@@ -169,9 +170,15 @@ SCFEnergy FockBuilder::trace(OrbitalVector &Phi, const Nuclei &nucs) {
 
     // Reaction potential part
     if (this->Ro != nullptr) {
-        Er_nuc = 0.5 * this->Ro->getNuclearEnergy();
-        Er_tot = 0.5 * this->Ro->getTotalEnergy();
-        Er_el = 0.5 * this->Ro->getElectronicEnergy();
+        Density rho_el(false);
+        density::compute(this->prec, rho_el, Phi, DensityType::Total);
+        rho_el.rescale(-1.0);
+        std::tuple<double, double> Er = this->Ro->getHelper()->computeEnergies(rho_el);
+
+        Er_el = std::get<0>(Er);
+        Er_nuc = std::get<1>(Er);
+
+        Er_tot = Er_nuc + Er_el;
     }
 
     // Kinetic part
@@ -182,9 +189,7 @@ SCFEnergy FockBuilder::trace(OrbitalVector &Phi, const Nuclei &nucs) {
     }
 
     // Electronic part
-    if (this->nuc != nullptr) {
-        E_en = this->nuc->trace(Phi).real();
-    }
+    if (this->nuc != nullptr) { E_en = this->nuc->trace(Phi).real(); }
 
     if (this->coul != nullptr) E_ee = 0.5 * this->coul->trace(Phi).real();
     if (this->ex != nullptr) E_x = -this->exact_exchange * this->ex->trace(Phi).real();
