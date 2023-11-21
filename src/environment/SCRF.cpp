@@ -96,7 +96,8 @@ void SCRF::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFunctio
     resetComplexFunction(out_gamma);
 
     for (int d = 0; d < 3; d++) {
-        mrcpp::AnalyticFunction<3> d_cav(this->epsilon.getGradVector()[d]);
+        auto C_pin = this->epsilon.getCavity();
+        mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
         mrcpp::ComplexFunction cplxfunc_prod;
         mrcpp::cplxfunc::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
         // add result into out_gamma
@@ -107,7 +108,7 @@ void SCRF::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFunctio
         }
     }
 
-    out_gamma.rescale(std::log((epsilon.getEpsIn() / epsilon.getEpsOut())) * (1.0 / (4.0 * mrcpp::pi)));
+    out_gamma.rescale(std::log((epsilon.getValueIn() / epsilon.getValueOut())) * (1.0 / (4.0 * mrcpp::pi)));
     mrcpp::clear(d_V, true);
 }
 
@@ -118,13 +119,11 @@ mrcpp::ComplexFunction SCRF::solvePoissonEquation(const mrcpp::ComplexFunction &
     mrcpp::ComplexFunction Vr_np1;
     Vr_np1.alloc(NUMBER::Real);
 
-    this->epsilon.flipFunction(true);
-
+    auto eps_inv_func = mrcpp::AnalyticFunction<3>([this](const mrcpp::Coord<3> &r) { return 1.0 / this->epsilon.evalf(r); });
     Density rho_tot(false);
     computeDensities(Phi, rho_tot);
 
-    mrcpp::cplxfunc::multiply(first_term, rho_tot, this->epsilon, this->apply_prec);
-    this->epsilon.flipFunction(false);
+    mrcpp::cplxfunc::multiply(first_term, rho_tot, eps_inv_func, this->apply_prec);
 
     mrcpp::cplxfunc::add(rho_eff, 1.0, first_term, -1.0, rho_tot, -1.0);
     rho_tot.free(NUMBER::Real);

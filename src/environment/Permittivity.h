@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Cavity.h"
+#include "StepFunction.h"
 #include "utils/print_utils.h"
 #include <MRCPP/MWFunctions>
 #include <MRCPP/Printer>
@@ -46,7 +47,7 @@ namespace mrchem {
 
 class Cavity;
 
-class Permittivity final : public mrcpp::RepresentableFunction<3> {
+class Permittivity final : public StepFunction {
 public:
     /** @brief Standard constructor. Initializes the #cavity, #epsilon_in and #epsilon_out with the input parameters.
      *  @param cavity interlocking spheres of Cavity class.
@@ -55,7 +56,7 @@ public:
      *  @param formulation Decides which formulation of the #Permittivity function to implement, only exponential
      * available as of now.
      */
-    Permittivity(const Cavity cavity, double epsilon_in, double epsilon_out, std::string formulation);
+    Permittivity(std::shared_ptr<Cavity> cavity, double epsilon_in, double epsilon_out, std::string formulation);
 
     /** @brief Evaluates Permittivity at a point in 3D space with respect to the state of #inverse.
      *  @param r coordinates of a 3D point in space.
@@ -64,42 +65,10 @@ public:
      */
     double evalf(const mrcpp::Coord<3> &r) const override;
 
-    /** @brief Changes the value of #inverse. */
-    void flipFunction(bool is_inverse) { this->inverse = is_inverse; }
-
-    /** @brief Returns the current state of #inverse. */
-    auto isInverse() const { return this->inverse; }
-
-    /** @brief Calls the Cavity::getCoordinates() method of the #cavity instance. */
-    auto getCoordinates() const { return this->cavity.getCoordinates(); }
-
-    /** @brief Calls the Cavity::getRadii() method of the #cavity instance. */
-    auto getRadii() const { return this->cavity.getRadii(); }
-
-    /** @brief Calls the Cavity::getGradVector() method of the #cavity instance. */
-    auto getGradVector() const { return this->cavity.getGradVector(); }
-
-    /** @brief Returns the value of #epsilon_in. */
-    auto getEpsIn() const { return this->epsilon_in; }
-
-    /** @brief Returns the value of #epsilon_out. */
-    auto getEpsOut() const { return this->epsilon_out; }
-
-    /** @brief Returns the cavity */
-    Cavity getCavity() const { return this->cavity; }
-
-    /** @brief Returns the formulation */
-    std::string getFormulation() const { return this->formulation; }
-
-    /** @brief Print parameters */
-    void printParameters() const;
+    void printHeader() const override { detail::print_header("Solvation Cavity", this->formulation, getValueIn(), getValueOut()); }
 
 private:
-    bool inverse = false;    //!< State of #evalf
-    double epsilon_in;       //!< Dielectric constant describing the permittivity of free space.
-    double epsilon_out;      //!< Dielectric constant describing the permittivity of the solvent.
-    std::string formulation; //!< Formulation of the permittivity function, only exponential is used as of now.
-    Cavity cavity;           //!< A Cavity class instance.
+    std::string formulation{"exponential"};
 };
 
 } // namespace mrchem
