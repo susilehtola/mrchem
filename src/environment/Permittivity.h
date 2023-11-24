@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "Cavity.h"
-#include "StepFunction.h"
-#include "utils/print_utils.h"
 #include <MRCPP/MWFunctions>
 #include <MRCPP/Printer>
+
+#include "StepFunction.h"
+#include "utils/print_utils.h"
 
 namespace mrchem {
 /** @class Permittivity
@@ -65,7 +65,7 @@ public:
      */
     double evalf(const mrcpp::Coord<3> &r) const override;
 
-    void printHeader() const override { detail::print_header("Solvation Cavity", this->formulation, getValueIn(), getValueOut()); }
+    void printParameters() const override { detail::print_header("Permittivity", this->formulation, getValueIn(), getValueOut()); }
 
 private:
     std::string formulation{"exponential"};

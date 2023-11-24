@@ -1,4 +1,5 @@
-target_sources(mrchem PRIVATE
+target_sources(mrchem
+  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/CoulombPotential.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CoulombPotentialD1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CoulombPotentialD2.cpp
@@ -10,4 +11,6 @@ target_sources(mrchem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/XCPotentialD1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/XCPotentialD2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ReactionPotential.cpp
-    )
+    ${CMAKE_CURRENT_SOURCE_DIR}/ReactionPotentialD1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ReactionPotentialD2.cpp
+  )

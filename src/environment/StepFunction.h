@@ -24,6 +24,7 @@
  */
 
 #pragma once
+
 #include <memory>
 
 #include <MRCPP/MWFunctions>
@@ -67,9 +68,7 @@ public:
 
     std::shared_ptr<Cavity> getCavity() const { return this->cavity; }
 
-    void printParameters() const;
-
-    virtual void printHeader() const { detail::print_header("Step function of Cavity values", "Standard", getValueIn(), getValueOut()); }
+    virtual void printParameters() const { detail::print_header("Step function", "Standard", getValueIn(), getValueOut()); }
 
 protected:
     double in;                      //!< Value of the function inside the #cavity.

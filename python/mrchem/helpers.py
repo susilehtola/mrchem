@@ -73,16 +73,7 @@ def write_scf_fock(user_dict, wf_dict, origin):
 
     # Reaction
     if user_dict["WaveFunction"]["environment"].lower() == "pcm":
-        fock_dict["reaction_operator"] = {
-            "poisson_prec": user_dict["world_prec"],
-            "kain": user_dict["PCM"]["SCRF"]["kain"],
-            "max_iter": user_dict["PCM"]["SCRF"]["max_iter"],
-            "dynamic_thrs": user_dict["PCM"]["SCRF"]["dynamic_thrs"],
-            "density_type": user_dict["PCM"]["SCRF"]["density_type"],
-            "epsilon_in": user_dict["PCM"]["Permittivity"]["epsilon_in"],
-            "epsilon_out": user_dict["PCM"]["Permittivity"]["epsilon_out"],
-            "formulation": user_dict["PCM"]["Permittivity"]["formulation"],
-        }
+        fock_dict["reaction_operator"] = _reaction_operator_handler(user_dict)
 
     # Coulomb
     if wf_dict["method_type"] in ["hartree", "hf", "dft"]:
@@ -126,6 +117,32 @@ def write_scf_fock(user_dict, wf_dict, origin):
         }
 
     return fock_dict
+
+
+def _reaction_operator_handler(user_dict, rsp=False):
+    # convert density_type from string to integer
+    if user_dict["PCM"]["SCRF"]["density_type"] == "total":
+        density_type = 0
+    elif user_dict["PCM"]["SCRF"]["density_type"] == "electronic":
+        density_type = 1
+    else:
+        density_type = 2
+
+    return {
+        "poisson_prec": user_dict["world_prec"],
+        "kain": user_dict["PCM"]["SCRF"]["kain"],
+        "max_iter": user_dict["PCM"]["SCRF"]["max_iter"],
+        "dynamic_thrs": user_dict["PCM"]["SCRF"]["dynamic_thrs"],
+        # if doing a response calculation, then density_type is set to 1 (electronic only)
+        "density_type": 1 if rsp else density_type,
+        "epsilon_in": user_dict["PCM"]["Permittivity"]["epsilon_in"],
+        "epsilon_static": user_dict["PCM"]["Permittivity"]["epsilon_out"]["static"],
+        "epsilon_dynamic": user_dict["PCM"]["Permittivity"]["epsilon_out"]["dynamic"],
+        "nonequilibrium": user_dict["PCM"]["Permittivity"]["epsilon_out"][
+            "nonequilibrium"
+        ],
+        "formulation": user_dict["PCM"]["Permittivity"]["formulation"],
+    }
 
 
 def write_scf_guess(user_dict, wf_dict):
@@ -305,7 +322,6 @@ def write_rsp_calc(omega, user_dict, origin):
 
     rsp_calc["components"] = []
     for dir in [0, 1, 2]:
-
         rsp_comp = {}
 
         program_guess_type = user_guess_type
@@ -404,6 +420,10 @@ def write_rsp_fock(user_dict, wf_dict):
                 "functionals": func_dict,
             },
         }
+
+    # Reaction
+    if user_dict["WaveFunction"]["environment"].lower() == "pcm":
+        fock_dict["reaction_operator"] = _reaction_operator_handler(user_dict, rsp=True)
 
     return fock_dict
 

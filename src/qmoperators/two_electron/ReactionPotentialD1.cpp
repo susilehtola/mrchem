@@ -23,25 +23,29 @@
  * <https://mrchem.readthedocs.io/>
  */
 
-#include "StepFunction.h"
+#include "MRCPP/Printer"
+#include "MRCPP/Timer"
 
-#include <MRCPP/MWFunctions>
+#include "ReactionPotentialD1.h"
+#include "environment/SCRF.h"
+#include "qmfunctions/density_utils.h"
+#include "utils/print_utils.h"
 
-#include "Cavity.h"
+using mrcpp::Printer;
+using mrcpp::Timer;
+
+using PoissonOperator = mrcpp::PoissonOperator;
+using PoissonOperator_p = std::shared_ptr<mrcpp::PoissonOperator>;
 
 namespace mrchem {
-namespace detail {
-void print_header(const std::string &header, const std::string &formulation, double in_value, double out_value) {
-    mrcpp::print::header(0, header);
-    print_utils::text(0, "Formulation", formulation, true);
-    print_utils::scalar(0, "Value inside Cavity", in_value, "(in)", 6);
-    print_utils::scalar(0, "Value outside Cavity", out_value, "(out)", 6);
-    mrcpp::print::separator(0, '=', 2);
-}
-} // namespace detail
+mrcpp::ComplexFunction &ReactionPotentialD1::computePotential(double prec) const {
+    // construct electronic density from the orbitals
+    OrbitalVector &Phi = *this->orbitals;
+    Density rho_el(false);
+    density::compute(this->apply_prec, rho_el, Phi, DensityType::Total);
+    // change sign, because it's the electronic density
+    rho_el.rescale(-1.0);
 
-StepFunction::StepFunction(std::shared_ptr<mrchem::Cavity> cavity, double val_in, double val_out)
-        : in(val_in)
-        , out(val_out)
-        , cavity{std::move(cavity)} {}
+    return this->helper->setup(prec, rho_el);
+}
 } // namespace mrchem

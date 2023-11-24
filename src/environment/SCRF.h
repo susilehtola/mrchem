@@ -25,12 +25,23 @@
 
 #pragma once
 
+#include <memory>
+#include <tuple>
+
+#include <MRCPP/MWFunctions>
+#include <MRCPP/MWOperators>
+
 #include "Permittivity.h"
 #include "qmfunctions/Density.h"
-#include "qmfunctions/Orbital.h"
 
 namespace mrchem {
 class KAIN;
+class ReactionPotential;
+class ReactionPotentialD1;
+class ReactionPotentialD2;
+
+enum class SCRFDensityType : int { TOTAL = 0, ELECTRONIC = 1, NUCLEAR = 2 };
+
 /** @class SCRF
  *  @brief class that performs the computation of the  ReactionPotential, named Self Consistent Reaction Field.
  */
@@ -43,26 +54,29 @@ public:
          int kain_hist,
          int max_iter,
          bool dyn_thrs,
-         const std::string &density_type);
+         SCRFDensityType density_type);
     ~SCRF();
 
     double setConvergenceThreshold(double prec);
-
-    mrcpp::ComplexFunction &getCurrentReactionPotential() { return this->Vr_n; }
 
     Permittivity &getPermittivity() { return this->epsilon; }
 
     void updateMOResidual(double const err_t) { this->mo_residual = err_t; }
 
-    friend class ReactionPotential;
     auto computeEnergies(const Density &rho_el) -> std::tuple<double, double>;
+
+    auto getDensityType() const -> SCRFDensityType { return this->density_type; }
+
+    friend class ReactionPotential;
+    friend class ReactionPotentialD1;
+    friend class ReactionPotentialD2;
 
 protected:
     void clear();
 
 private:
     bool dynamic_thrs;
-    std::string density_type;
+    SCRFDensityType density_type;
 
     int max_iter;
     int history;
@@ -81,15 +95,15 @@ private:
     std::shared_ptr<mrcpp::DerivativeOperator<3>> derivative;
     std::shared_ptr<mrcpp::PoissonOperator> poisson;
 
-    void computeDensities(OrbitalVector &Phi, Density &rho_out);
+    void computeDensities(const Density &rho_el, Density &rho_out);
     void computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFunction &out_gamma);
 
-    mrcpp::ComplexFunction solvePoissonEquation(const mrcpp::ComplexFunction &ingamma, mrchem::OrbitalVector &Phi);
+    mrcpp::ComplexFunction solvePoissonEquation(const mrcpp::ComplexFunction &ingamma, const Density &rho_el);
 
     void accelerateConvergence(mrcpp::ComplexFunction &dfunc, mrcpp::ComplexFunction &func, KAIN &kain);
 
-    void nestedSCRF(const mrcpp::ComplexFunction &V_vac, std::shared_ptr<mrchem::OrbitalVector> Phi_p);
-    mrcpp::ComplexFunction &setup(double prec, const std::shared_ptr<mrchem::OrbitalVector> &Phi_p);
+    void nestedSCRF(const mrcpp::ComplexFunction &V_vac, const Density &rho_el);
+    mrcpp::ComplexFunction &setup(double prec, const Density &rho_el);
 
     void resetComplexFunction(mrcpp::ComplexFunction &function);
 

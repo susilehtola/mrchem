@@ -936,12 +936,6 @@ sections:
             docstring: |
               Permittivity inside the cavity. 1.0 is the permittivity of free
               space, anything other than this is undefined behaviour.
-          - name: epsilon_out
-            type: float
-            default: 1.0
-            docstring: |
-              Permittivity outside the cavity. This is characteristic of the
-              solvent used.
           - name: formulation
             type: str
             default: exponential
@@ -949,7 +943,33 @@ sections:
               - value.lower() in ['exponential']
             docstring: |
               Formulation of the Permittivity function. Currently only the
-              exponential is used.
+              exponential is available.
+        sections:
+          - name: epsilon_out
+            docstring: |
+              Parameters for the continuum solvent outside the cavity.
+            keywords:
+              - name: static
+                type: float
+                default: 1.0
+                docstring: |
+                  Static permittivity outside the cavity. This is characteristic of the
+                  solvent used.
+              - name: dynamic
+                type: float
+                default: user['PCM']['Permittivity']['epsilon_out']['static']
+                docstring: |
+                  Dynamic permittivity outside the cavity. This is
+                  characteristic of the solvent used and relevant only in
+                  response calculations. Defaults to the same value as
+                  `epsilon_static`.
+              - name: nonequilibrium
+                type: bool
+                default: false
+                docstring: |
+                  Whether to use the nonequilibrium formulation of response,
+                  *i.e.* use the dynamic permittivity for the calculation of the
+                  response reaction field. Defaults to false.
   - name: Constants
     docstring: Physical and mathematical constants used by MRChem
     keywords:

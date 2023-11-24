@@ -23,25 +23,34 @@
  * <https://mrchem.readthedocs.io/>
  */
 
-#include "StepFunction.h"
+#include "MRCPP/Printer"
+#include "MRCPP/Timer"
 
-#include <MRCPP/MWFunctions>
+#include "ReactionPotentialD2.h"
+#include "qmfunctions/density_utils.h"
+#include "utils/print_utils.h"
 
-#include "Cavity.h"
+using mrcpp::Printer;
+using mrcpp::Timer;
 
 namespace mrchem {
-namespace detail {
-void print_header(const std::string &header, const std::string &formulation, double in_value, double out_value) {
-    mrcpp::print::header(0, header);
-    print_utils::text(0, "Formulation", formulation, true);
-    print_utils::scalar(0, "Value inside Cavity", in_value, "(in)", 6);
-    print_utils::scalar(0, "Value outside Cavity", out_value, "(out)", 6);
-    mrcpp::print::separator(0, '=', 2);
-}
-} // namespace detail
+mrcpp::ComplexFunction &ReactionPotentialD2::computePotential(double prec) const {
+    // construct perturbed density from the orbitals
+    if (this->orbitals == nullptr) MSG_ERROR("Orbitals not initialized");
+    if (this->orbitals_x == nullptr) MSG_ERROR("Perturbed X orbitals not initialized");
+    if (this->orbitals_y == nullptr) MSG_ERROR("Perturbed Y orbitals not initialized");
 
-StepFunction::StepFunction(std::shared_ptr<mrchem::Cavity> cavity, double val_in, double val_out)
-        : in(val_in)
-        , out(val_out)
-        , cavity{std::move(cavity)} {}
+    Density rho(false);
+    OrbitalVector &Phi = *this->orbitals;
+    OrbitalVector &X = *this->orbitals_x;
+    OrbitalVector &Y = *this->orbitals_y;
+
+    Timer timer;
+    density::compute(prec, rho, Phi, X, Y, DensityType::Total);
+    print_utils::qmfunction(3, "Compute global density", rho, timer);
+    // change sign, because it's the electronic density
+    rho.rescale(-1.0);
+
+    return this->helper->setup(prec, rho);
+}
 } // namespace mrchem

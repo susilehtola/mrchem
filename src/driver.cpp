@@ -104,7 +104,7 @@ namespace driver {
 DerivativeOperator_p get_derivative(const std::string &name);
 template <int I> RankOneOperator<I> get_operator(const std::string &name, const json &json_oper);
 template <int I, int J> RankTwoOperator<I, J> get_operator(const std::string &name, const json &json_oper);
-void build_fock_operator(const json &input, Molecule &mol, FockBuilder &F, int order);
+void build_fock_operator(const json &input, Molecule &mol, FockBuilder &F, int order, bool is_dynamic = false);
 void init_properties(const json &json_prop, Molecule &mol);
 
 namespace scf {
@@ -746,7 +746,7 @@ json driver::rsp::run(const json &json_rsp, Molecule &mol) {
 
     FockBuilder F_1;
     const auto &json_fock_1 = json_rsp["fock_operator"];
-    driver::build_fock_operator(json_fock_1, mol, F_1, 1);
+    driver::build_fock_operator(json_fock_1, mol, F_1, 1, dynamic);
 
     const auto &json_pert = json_rsp["perturbation"];
     auto h_1 = driver::get_operator<3>(json_pert["operator"], json_pert);
@@ -983,7 +983,7 @@ void driver::rsp::calc_properties(const json &json_prop, Molecule &mol, int dir,
  * construct all operator which are present in this input. Option to set
  * perturbation order of the operators.
  */
-void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockBuilder &F, int order) {
+void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockBuilder &F, int order, bool is_dynamic) {
     auto &nuclei = mol.getNuclei();
     auto Phi_p = mol.getOrbitals_p();
     auto X_p = mol.getOrbitalsX_p();
@@ -1043,26 +1043,66 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockBuild
     ///////////////////////////////////////////////////////////
     if (json_fock.contains("reaction_operator")) {
 
+        // only perturbaton orders 0 and 1 are implemented
+        if (order > 1) MSG_ABORT("Invalid perturbation order");
+
         // preparing Reaction Operator
         auto poisson_prec = json_fock["reaction_operator"]["poisson_prec"];
         auto P_p = std::make_shared<PoissonOperator>(*MRA, poisson_prec);
         auto D_p = std::make_shared<mrcpp::ABGVOperator<3>>(*MRA, 0.0, 0.0);
+        auto cavity_p = mol.getCavity_p();
+        cavity_p->printParameters();
 
         auto kain = json_fock["reaction_operator"]["kain"];
         auto max_iter = json_fock["reaction_operator"]["max_iter"];
         auto dynamic_thrs = json_fock["reaction_operator"]["dynamic_thrs"];
+        // the input parser helpers have converted this parameter from string
+        // to integer, compatibly with the DensityType enum
         auto density_type = json_fock["reaction_operator"]["density_type"];
+        // permittivity inside the cavity
         auto eps_i = json_fock["reaction_operator"]["epsilon_in"];
-        auto eps_o = json_fock["reaction_operator"]["epsilon_out"];
+        // static permittivity outside the cavity
+        auto eps_s = json_fock["reaction_operator"]["epsilon_static"];
+        // dynamic permittivity outside the cavity
+        auto eps_d = json_fock["reaction_operator"]["epsilon_dynamic"];
+        // whether nonequilibrium response was requested
+        auto noneq = json_fock["reaction_operator"]["nonequilibrium"];
         auto formulation = json_fock["reaction_operator"]["formulation"];
 
-        Permittivity dielectric_func(mol.getCavity_p(), eps_i, eps_o, formulation);
-        dielectric_func.printParameters();
+        // compute nuclear charge density
         Density rho_nuc(false);
         rho_nuc = chemistry::compute_nuclear_density(poisson_prec, nuclei, 100);
 
+        // decide which permittivity to use outside of the cavity
+        auto eps_o = [order, is_dynamic, noneq, eps_s, eps_d] {
+            if (order >= 1 && noneq && is_dynamic) {
+                // in response (order >= 1), use dynamic permittivity if:
+                // a. nonequilibrium was requested (noneq is true), and
+                // b. the frequency is nonzero (is_dynamic is true)
+                return eps_d;
+            } else {
+                // for the ground state, always use the static permittivity
+                return eps_s;
+            }
+        }();
+
+        // initialize Permittivity function with static or dynamic epsilon, based on perturbation order
+        Permittivity dielectric_func(cavity_p, eps_i, eps_o, formulation);
+        dielectric_func.printParameters();
+
+        // initialize SCRF object
         auto scrf_p = std::make_unique<SCRF>(dielectric_func, rho_nuc, P_p, D_p, kain, max_iter, dynamic_thrs, density_type);
-        auto V_R = std::make_shared<ReactionOperator>(std::move(scrf_p), Phi_p);
+
+        // initialize reaction potential object
+        auto V_R = [&] {
+            if (order == 0) {
+                return std::make_shared<ReactionOperator>(std::move(scrf_p), Phi_p);
+            } else {
+                return std::make_shared<ReactionOperator>(std::move(scrf_p), Phi_p, X_p, Y_p);
+            }
+        }();
+
+        // set reaction potential in FockBuilder object
         F.getReactionOperator() = V_R;
     }
     ///////////////////////////////////////////////////////////
