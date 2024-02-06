@@ -354,7 +354,7 @@ class MoleculeValidator:
 
             if radii_not_found:
                 raise ValueError(
-                    f"vdw-radius for {', '.join(radii_not_found)} not defined in the Mantina set."
+                    f"vdw-radius for {', '.join(radii_not_found)} not defined in the Mantina set. You should specify them in your input file."
                 )
 
             alphas = [self.cavity_alpha] * len(radii)
