@@ -295,10 +295,11 @@ sections:
         type: str
         default: none
         predicates:
-          - value.lower() in ['none', 'pcm']
+          - value.lower() in ['none', 'pcm', 'pcm_pb', 'pcm_lpb']
         docstring: |
           Set method for treatment of environment. ``none`` for vacuum calculation. ``PCM`` for Polarizable Continuum Model,
-          which will activate the ``PCM`` input section for further parametrization options.
+          which will activate the ``PCM`` input section for further parametrization options. The ``PB`` and ``LPB`` variants add the
+          Poisson-Boltzmann and Linearized Poisson-Boltzmann solvers, respectively.
       - name: nuclear_model
         type: str
         default: point_like
@@ -844,6 +845,83 @@ sections:
               ``total`` uses the total charge density.
               ``nuclear`` uses only the nuclear part of the total charge density.
               ``electronic`` uses only the electronic part of the total charge density.
+      - name: Solvent
+        docstring: |
+          Parameters for the Self-Consistent Reaction Field optimization.
+        sections:
+          - name: Permittivity
+            docstring: |
+              Parameters for the permittivity function.
+            keywords:
+              - name: epsilon_in
+                type: float
+                default: 1.0
+                docstring: |
+                  Permittivity inside the cavity. 1.0 is the permittivity of free
+                  space, anything other than this is undefined behaviour.
+              - name: formulation
+                type: str
+                default: exponential
+                predicates:
+                  - value.lower() in ['exponential']
+                docstring: |
+                  Formulation of the Permittivity function. Currently only the
+                  exponential is available.
+            sections:
+              - name: epsilon_out
+                docstring: |
+                  Parameters for the continuum solvent outside the cavity.
+                keywords:
+                  - name: static
+                    type: float
+                    default: 1.0
+                    docstring: |
+                      Static permittivity outside the cavity. This is characteristic of the
+                      solvent used.
+                  - name: dynamic
+                    type: float
+                    default: user['PCM']['Solvent']['Permittivity']['epsilon_out']['static']
+                    docstring: |
+                      Dynamic permittivity outside the cavity. This is
+                      characteristic of the solvent used and relevant only in
+                      response calculations. Defaults to the same value as
+                      `epsilon_static`.
+                  - name: nonequilibrium
+                    type: bool
+                    default: false
+                    docstring: |
+                      Whether to use the nonequilibrium formulation of response,
+                      *i.e.* use the dynamic permittivity for the calculation of the
+                      response reaction field. Defaults to false.
+          - name: DebyeHuckelScreening
+            docstring: |
+              Parameters for the Debye-Huckel screening factor
+            keywords:
+              - name: ion_strength
+                type: float
+                default: 1.0
+                docstring: |
+                  Ionic strength of the electrolyte in mol/L. This represents the concentration of the ions in the bulk solvent.
+              - name: ion_radius
+                type: float
+                default: 0.0
+                docstring: |
+                  Amount with which the vdw-radius of the atoms will be increased.
+                  The screening factor will have an area of effect that is often going
+                  to be larger than the vdw-cavity, but centered in the same atoms.
+              - name: ion_width
+                type: float
+                default: 0.2
+                docstring: |
+                  Width of the transition between the solute and the ion accessible part.
+              - name: formulation
+                type: str
+                default: variable
+                predicates:
+                  - value.lower() in ['variable']
+                docstring: |
+                  formulation of the debye-huckel screening factor. Currently only the variable factor is implemented.
+                  ``variable``: implement the screening functions as  k = (1-C_ion)k_out
       - name: Cavity
         docstring: |
           Define the interlocking spheres cavity.
@@ -926,56 +1004,12 @@ sections:
               Width of cavity boundary, smaller value means sharper transition.
               **This quantity has dimensions of length. The default value is in
               atomic units**.
-      - name: Permittivity
-        docstring: |
-          Parameters for the permittivity function.
-        keywords:
-          - name: epsilon_in
-            type: float
-            default: 1.0
-            docstring: |
-              Permittivity inside the cavity. 1.0 is the permittivity of free
-              space, anything other than this is undefined behaviour.
-          - name: formulation
-            type: str
-            default: exponential
-            predicates:
-              - value.lower() in ['exponential']
-            docstring: |
-              Formulation of the Permittivity function. Currently only the
-              exponential is available.
-        sections:
-          - name: epsilon_out
-            docstring: |
-              Parameters for the continuum solvent outside the cavity.
-            keywords:
-              - name: static
-                type: float
-                default: 1.0
-                docstring: |
-                  Static permittivity outside the cavity. This is characteristic of the
-                  solvent used.
-              - name: dynamic
-                type: float
-                default: user['PCM']['Permittivity']['epsilon_out']['static']
-                docstring: |
-                  Dynamic permittivity outside the cavity. This is
-                  characteristic of the solvent used and relevant only in
-                  response calculations. Defaults to the same value as
-                  `epsilon_static`.
-              - name: nonequilibrium
-                type: bool
-                default: false
-                docstring: |
-                  Whether to use the nonequilibrium formulation of response,
-                  *i.e.* use the dynamic permittivity for the calculation of the
-                  response reaction field. Defaults to false.
   - name: GeometryOptimizer
     docstring: |
       Includes parameters related to the internal geometry optimization using the
       SQNM (Stabilized Quasi-Newton Method) for noisy PES. Geometry optimizations require accurate forces.
       Consider setting world_prec to 1e-5 to 1e-7.
-      Convergence issues can usually be solved by increasing the precision of the SCF calculation. If that does 
+      Convergence issues can usually be solved by increasing the precision of the SCF calculation. If that does
       not work, try setting the initial step size manually.
     keywords:
       - name: run
@@ -1085,6 +1119,32 @@ sections:
         type: float
         docstring: '| Conversion factor for dipoles from atomic units to Debye (unit:
           ?). Affected code: Printed value of dipole moments.'
+      - name: boltzmann_constant
+        default: 1.380649e-23
+        type: float
+        docstring: '| Boltzmann constant in (unit: J K^-1). Affected code: Value of
+          the Debye-Huckel screening parameter in the Poisson-Boltzmann equation.'
+      - name: elementary_charge
+        default: 1.602176634e-19
+        type: float
+        docstring: '| Elementary charge in (unit: C). Affected code: Value of the
+          Debye-Huckel screening parameter in the Poisson-Boltzmann equation.'
+      - name: e0
+        default: 8.8541878128e-12
+        type: float
+        docstring: '| Permittivity of free space (unit: F m^-1). Affected code: Value
+          of the Debye-Huckel screening parameter in the Poisson-Boltzmann equation.'
+      - name: N_a
+        default: 6.02214076e+23
+        type: float
+        docstring: '| Avogadro constant (unit: mol^-1). Affected code: Value of the
+          Debye-Huckel screening parameter in the Poisson-Boltzmann equation.'
+      - name: meter2bohr
+        default: 18897261246.2577
+        type: float
+        docstring: '| conversion factor from meter to Bohr radius (unit: m^-1). Affected
+          code: Value of the Debye-Huckel screening parameter in the Poisson-Boltzmann
+          equation.'
   - name: Elements
     sections:
       - name: h
