@@ -52,8 +52,8 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
 
     SECTION("apply") {
         Orbital phi(SPIN::Paired);
-        mrcpp::cplxfunc::project(phi, f, NUMBER::Real, prec);
-        mrcpp::cplxfunc::project(phi, g, NUMBER::Imag, prec);
+        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
 
         IdentityOperator I;
         I.setup(prec);
@@ -70,8 +70,8 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.distribute();
 
-        if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f, NUMBER::Real, prec);
-        if (mrcpp::mpi::my_orb(Phi[1])) mrcpp::cplxfunc::project(Phi[1], g, NUMBER::Imag, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
         normalize(Phi);
 
         IdentityOperator I;
@@ -96,8 +96,8 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
 
     SECTION("expectation value") {
         Orbital phi(SPIN::Paired);
-        mrcpp::cplxfunc::project(phi, f, NUMBER::Real, prec);
-        mrcpp::cplxfunc::project(phi, g, NUMBER::Imag, prec);
+        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
 
         IdentityOperator I;
         I.setup(prec);
@@ -114,8 +114,8 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.distribute();
 
-        if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f, NUMBER::Imag, prec);
-        if (mrcpp::mpi::my_orb(Phi[1])) mrcpp::cplxfunc::project(Phi[1], g, NUMBER::Imag, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
 
         IdentityOperator I;
         I.setup(prec);
