@@ -27,7 +27,7 @@
 #include <MRCPP/Timer>
 
 #include "parallel.h"
-#include "qmfunctions/ComplexFunction.h"
+#include "qmfunctions/CompFunction.h"
 #include "qmfunctions/Density.h"
 #include "qmfunctions/Orbital.h"
 #include "utils/Bank.h"
@@ -223,7 +223,7 @@ bool mpi::share_master() {
 }
 
 /** @brief Test if orbital belongs to this MPI rank (or is common)*/
-bool mpi::my_orb(const Orbital &orb) {
+bool mpi::my_func(const Orbital &orb) {
     return (orb.rankID() < 0 or orb.rankID() == mpi::orb_rank) ? true : false;
 }
 
@@ -240,7 +240,7 @@ void mpi::distribute(OrbitalVector &Phi) {
 /** @brief Free all function pointers not belonging to this MPI rank */
 void mpi::free_foreign(OrbitalVector &Phi) {
     for (auto &i : Phi) {
-        if (not mpi::my_orb(i)) i.free(NUMBER::Total);
+        if (not mpi::my_func(i)) i.free(NUMBER::Total);
     }
 }
 
@@ -248,7 +248,7 @@ void mpi::free_foreign(OrbitalVector &Phi) {
 OrbitalChunk mpi::get_my_chunk(OrbitalVector &Phi) {
     OrbitalChunk chunk;
     for (int i = 0; i < Phi.size(); i++) {
-        if (mpi::my_orb(Phi[i])) chunk.push_back(std::make_tuple(i, Phi[i]));
+        if (mpi::my_func(Phi[i])) chunk.push_back(std::make_tuple(i, Phi[i]));
     }
     return chunk;
 }
@@ -469,7 +469,7 @@ void mpi::allreduce_Tree_noCoeff(mrcpp::FunctionTree<3> &tree, OrbitalVector &Ph
      */
     int N = Phi.size();
     for (int j = 0; j < N; j++) {
-        if (not mpi::my_orb(Phi[j])) continue;
+        if (not mpi::my_func(Phi[j])) continue;
         if (Phi[j].hasReal()) tree.appendTreeNoCoeff(Phi[j].real());
         if (Phi[j].hasImag()) tree.appendTreeNoCoeff(Phi[j].imag());
     }

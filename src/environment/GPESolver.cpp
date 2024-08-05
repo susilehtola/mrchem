@@ -80,15 +80,13 @@ void GPESolver::computeDensities(const Density &rho_el, Density &rho_out) {
 
     switch (this->density_type) {
         case SCRFDensityType::TOTAL:
-            mrcpp::cplxfunc::add(rho_out, 1.0, rho_el, 1.0, this->rho_nuc, -1.0);
+            mrcpp::add(rho_out, 1.0, rho_el, 1.0, this->rho_nuc, -1.0);
             break;
         case SCRFDensityType::ELECTRONIC:
-            // using const_cast is absolutely EVIL here and in principle shouldn't be needed!
-            // however MRCPP is not everywhere const-correct, so here we go!
-            mrcpp::cplxfunc::deep_copy(rho_out, const_cast<Density &>(rho_el));
+            mrcpp::deep_copy(rho_out, rho_el);
             break;
         case SCRFDensityType::NUCLEAR:
-            mrcpp::cplxfunc::deep_copy(rho_out, this->rho_nuc);
+            mrcpp::deep_copy(rho_out, this->rho_nuc);
             break;
         default:
             MSG_ABORT("Invalid density type");
@@ -96,7 +94,7 @@ void GPESolver::computeDensities(const Density &rho_el, Density &rho_out) {
     print_utils::qmfunction(3, "Vacuum density", rho_out, timer);
 }
 
-void GPESolver::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFunction &out_gamma) {
+void GPESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunction<3> &out_gamma) {
 
     auto d_V = mrcpp::gradient(*derivative, potential.real()); // FunctionTreeVector
     resetComplexFunction(out_gamma);
@@ -104,11 +102,11 @@ void GPESolver::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFu
     for (int d = 0; d < 3; d++) {
         auto C_pin = this->epsilon.getCavity_p();
         mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
-        mrcpp::ComplexFunction cplxfunc_prod;
-        mrcpp::cplxfunc::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
+        mrcpp::CompFunction<3> cplxfunc_prod;
+        mrcpp::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
         // add result into out_gamma
         if (d == 0) {
-            mrcpp::cplxfunc::deep_copy(out_gamma, cplxfunc_prod);
+            mrcpp::deep_copy(out_gamma, cplxfunc_prod);
         } else {
             out_gamma.add(1.0, cplxfunc_prod);
         }
@@ -118,32 +116,30 @@ void GPESolver::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFu
     mrcpp::clear(d_V, true);
 }
 
-mrcpp::ComplexFunction GPESolver::solvePoissonEquation(const mrcpp::ComplexFunction &in_gamma, const Density &rho_el) {
-    mrcpp::ComplexFunction Poisson_func;
-    mrcpp::ComplexFunction rho_eff;
-    mrcpp::ComplexFunction first_term;
-    mrcpp::ComplexFunction Vr_np1;
+mrcpp::CompFunction<3> GPESolver::solvePoissonEquation(const mrcpp::CompFunction<3> &in_gamma, const Density &rho_el) {
+    mrcpp::CompFunction<3> Poisson_func;
+    mrcpp::CompFunction<3> rho_eff;
+    mrcpp::CompFunction<3> first_term;
+    mrcpp::CompFunction<3> Vr_np1;
     Vr_np1.alloc(NUMBER::Real);
 
     auto eps_inv_func = mrcpp::AnalyticFunction<3>([this](const mrcpp::Coord<3> &r) { return 1.0 / this->epsilon.evalf(r); });
     Density rho_tot(false);
     computeDensities(rho_el, rho_tot);
 
-    mrcpp::cplxfunc::multiply(first_term, rho_tot, eps_inv_func, this->apply_prec);
+    mrcpp::multiply(first_term, rho_tot, eps_inv_func, this->apply_prec);
 
-    mrcpp::cplxfunc::add(rho_eff, 1.0, first_term, -1.0, rho_tot, -1.0);
+    mrcpp::add(rho_eff, 1.0, first_term, -1.0, rho_tot, -1.0);
     rho_tot.free(NUMBER::Real);
 
-    mrcpp::cplxfunc::add(Poisson_func, 1.0, in_gamma, 1.0, rho_eff, -1.0);
+    mrcpp::add(Poisson_func, 1.0, in_gamma, 1.0, rho_eff, -1.0);
     mrcpp::apply(this->apply_prec, Vr_np1.real(), *poisson, Poisson_func.real());
     return Vr_np1;
 }
 
-void GPESolver::accelerateConvergence(mrcpp::ComplexFunction &dfunc, mrcpp::ComplexFunction &func, KAIN &kain) {
-    OrbitalVector phi_n(0);
-    OrbitalVector dPhi_n(0);
-    phi_n.push_back(Orbital(SPIN::Paired));
-    dPhi_n.push_back(Orbital(SPIN::Paired));
+void GPESolver::accelerateConvergence(mrcpp::CompFunction<3> &dfunc, mrcpp::CompFunction<3> &func, KAIN &kain) {
+    OrbitalVector phi_n(1);
+    OrbitalVector dPhi_n(1);
 
     phi_n[0] = func;
     dPhi_n[0] = dfunc;
@@ -160,7 +156,7 @@ void GPESolver::accelerateConvergence(mrcpp::ComplexFunction &dfunc, mrcpp::Comp
     dPhi_n.clear();
 }
 
-void GPESolver::runMicroIterations(const mrcpp::ComplexFunction &V_vac, const Density &rho_el) {
+void GPESolver::runMicroIterations(const mrcpp::CompFunction<3> &V_vac, const Density &rho_el) {
     KAIN kain(this->history);
     kain.setLocalPrintLevel(10);
 
@@ -171,29 +167,29 @@ void GPESolver::runMicroIterations(const mrcpp::ComplexFunction &V_vac, const De
     while (update >= this->conv_thrs && iter <= max_iter) {
         Timer t_iter;
         // solve the poisson equation
-        mrcpp::ComplexFunction V_tot;
-        mrcpp::ComplexFunction gamma_n;
-        mrcpp::ComplexFunction dVr_n;
+        mrcpp::CompFunction<3> V_tot;
+        mrcpp::CompFunction<3> gamma_n;
+        mrcpp::CompFunction<3> dVr_n;
 
-        mrcpp::cplxfunc::add(V_tot, 1.0, this->Vr_n, 1.0, V_vac, -1.0);
+        mrcpp::add(V_tot, 1.0, this->Vr_n, 1.0, V_vac, -1.0);
         computeGamma(V_tot, gamma_n);
         auto Vr_np1 = solvePoissonEquation(gamma_n, rho_el);
         norm = Vr_np1.norm();
 
         // use a convergence accelerator
 
-        mrcpp::cplxfunc::add(dVr_n, 1.0, Vr_np1, -1.0, this->Vr_n, -1.0);
+        mrcpp::add(dVr_n, 1.0, Vr_np1, -1.0, this->Vr_n, -1.0);
         update = dVr_n.norm();
 
         if (iter > 1 and this->history > 0) {
             accelerateConvergence(dVr_n, Vr_n, kain);
             Vr_np1.free(NUMBER::Real);
-            mrcpp::cplxfunc::add(Vr_np1, 1.0, Vr_n, 1.0, dVr_n, -1.0);
+            mrcpp::add(Vr_np1, 1.0, Vr_n, 1.0, dVr_n, -1.0);
         }
 
         // set up for next iteration
         resetComplexFunction(this->Vr_n);
-        mrcpp::cplxfunc::deep_copy(this->Vr_n, Vr_np1);
+        mrcpp::deep_copy(this->Vr_n, Vr_np1);
         Vr_np1.free(NUMBER::Real);
 
         printConvergenceRow(iter, norm, update, t_iter.elapsed());
@@ -233,12 +229,12 @@ void GPESolver::printConvergenceRow(int i, double norm, double update, double ti
     println(3, o_txt.str());
 }
 
-mrcpp::ComplexFunction &GPESolver::solveEquation(double prec, const Density &rho_el) {
+mrcpp::CompFunction<3> &GPESolver::solveEquation(double prec, const Density &rho_el) {
     this->apply_prec = prec;
     Density rho_tot(false);
     computeDensities(rho_el, rho_tot);
     Timer t_vac;
-    mrcpp::ComplexFunction V_vac;
+    mrcpp::CompFunction<3> V_vac;
     V_vac.alloc(NUMBER::Real);
     mrcpp::apply(this->apply_prec, V_vac.real(), *poisson, rho_tot.real());
     rho_tot.free(NUMBER::Real);
@@ -248,8 +244,8 @@ mrcpp::ComplexFunction &GPESolver::solveEquation(double prec, const Density &rho
 
     Timer t_gamma;
     if (not this->Vr_n.hasReal()) {
-        mrcpp::ComplexFunction gamma_0;
-        mrcpp::ComplexFunction V_tot;
+        mrcpp::CompFunction<3> gamma_0;
+        mrcpp::CompFunction<3> V_tot;
         computeGamma(V_vac, gamma_0);
         this->Vr_n = solvePoissonEquation(gamma_0, rho_el);
     }
@@ -263,15 +259,13 @@ mrcpp::ComplexFunction &GPESolver::solveEquation(double prec, const Density &rho
 }
 
 auto GPESolver::computeEnergies(const Density &rho_el) -> std::tuple<double, double> {
-    auto Er_nuc = 0.5 * mrcpp::cplxfunc::dot(this->rho_nuc, this->Vr_n).real();
-    auto Er_el = 0.5 * mrcpp::cplxfunc::dot(rho_el, this->Vr_n).real();
+    auto Er_nuc = 0.5 * mrcpp::dot(this->rho_nuc, this->Vr_n).real();
+    auto Er_el = 0.5 * mrcpp::dot(rho_el, this->Vr_n).real();
     return {Er_el, Er_nuc};
 }
 
-void GPESolver::resetComplexFunction(mrcpp::ComplexFunction &function) {
-    if (function.hasReal()) function.free(NUMBER::Real);
-    if (function.hasImag()) function.free(NUMBER::Imag);
-    function.alloc(NUMBER::Real);
+void GPESolver::resetComplexFunction(mrcpp::CompFunction<3> &function) {
+    function.alloc(0);
 }
 
 void GPESolver::printParameters() const {

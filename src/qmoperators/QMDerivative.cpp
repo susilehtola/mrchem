@@ -27,12 +27,12 @@
 #include <MRCPP/Printer>
 #include <MRCPP/Timer>
 
+#include "qmfunctions/Orbital.h"
 #include "QMDerivative.h"
 
 #include "QMIdentity.h"
 #include "QMPotential.h"
 #include "QMSpin.h"
-#include "qmfunctions/Orbital.h"
 #include "qmfunctions/orbital_utils.h"
 #include "utils/print_utils.h"
 
@@ -64,28 +64,10 @@ Orbital QMDerivative::apply(Orbital inp) {
     auto dir = this->apply_dir;
     auto &D = *this->derivative;
 
-    Orbital out = inp.paramCopy();
-    if (this->isReal()) {
-        if (inp.hasReal()) {
-            out.alloc(NUMBER::Real);
-            mrcpp::apply(out.real(), D, inp.real(), dir);
-        }
-        if (inp.hasImag()) {
-            out.alloc(NUMBER::Imag);
-            mrcpp::apply(out.imag(), D, inp.imag(), dir);
-            if (inp.conjugate()) out.imag().rescale(-1.0);
-        }
-    } else {
-        if (inp.hasImag()) {
-            out.alloc(NUMBER::Real);
-            mrcpp::apply(out.real(), D, inp.imag(), dir);
-            if (!inp.conjugate()) out.real().rescale(-1.0);
-        }
-        if (inp.hasReal()) {
-            out.alloc(NUMBER::Imag);
-            mrcpp::apply(out.imag(), D, inp.real(), dir);
-        }
-    }
+    Orbital out(inp);
+    out.alloc(0);
+    mrcpp::apply(out, D, inp, dir);
+
     return out;
 }
 

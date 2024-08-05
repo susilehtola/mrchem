@@ -91,7 +91,7 @@ TEST_CASE("Poisson Boltzmann equation solver standard", "[PB_solver][pb_standard
         Phi.distribute();
 
         HydrogenFunction f(1, 0, 0);
-        if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f, NUMBER::Real, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f, prec);
 
         auto rho_nuc = chemistry::compute_nuclear_density(prec, molecule, 100);
 
@@ -148,7 +148,7 @@ TEST_CASE("Poisson Boltzmann equation solver linearized", "[PB_solver][pb_linear
         Phi.distribute();
 
         HydrogenFunction f(1, 0, 0);
-        if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f, NUMBER::Real, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f, prec);
 
         auto rho_nuc = chemistry::compute_nuclear_density(prec, molecule, 100);
 

@@ -27,12 +27,13 @@
 
 #include "MRCPP/MWFunctions"
 #include "MRCPP/Parallel"
+#include "mrchem.h"
 
 /** @class Orbital
  *
  * @brief General complex-valued function with spin
  *
- * Inherits the general features of a complex function from mrcpp::ComplexFunction which
+ * Inherits the general features of a complex function from mrcpp::CompFunction<3> which
  * means separate MW function representations for the real and imaginary parts.
  * Note that there are several options for copying/assignment: the proper copy
  * constructor and assignment operator are *shallow* copies, which means that
@@ -48,7 +49,43 @@
 
 namespace mrchem {
 
-using Orbital = mrcpp::ComplexFunction;
-using OrbitalVector = mrcpp::MPI_FuncVector;
+#define spin() data.n1[0]
+#define occ() data.n2[0]
+class Orbital : public mrcpp::CompFunction<3> {
+public:
+    Orbital();
+    Orbital(SPIN::type spin);
+    Orbital(Orbital &orb);
+    Orbital(const mrcpp::CompFunction<3> &orb);
+    Orbital(int spin, int occ, int rank = -1);
+    Orbital dagger() const;
+
+    //    const int spin() const {return data.n1[0];}
+    //    const int occ() const {return data.n2[0];}
+    char printSpin() const;
+    void setSpin(int spin) {this->data.n2[0] = spin;}
+    void saveOrbital(const std::string &file);
+    void loadOrbital(const std::string &file);
+};
+
+//using OrbitalVector = mrcpp::CompFunctionVector<3>;
+class OrbitalVector : public mrcpp::CompFunctionVector {
+public:
+    OrbitalVector(int N = 0) : mrcpp::CompFunctionVector(N) {}
+    void push_back(Orbital orb) { orb.rank = size(); this->push_back(orb);}
+    void distribute() {this->distribute();}
+    // Overloaded operator[] to return an Orbital element
+    // for read (returns lvalue)
+    Orbital operator[](int i) const {
+        // Create a temporary copy of the base class element to avoid discarding qualifiers
+        mrcpp::CompFunction<3> func = mrcpp::CompFunctionVector::operator[](i);
+        return Orbital(func);
+    }
+    // Non-const version of operator[] to allow modification of elements
+    // for write (returns rvalue). Cannot return an Orbital
+    mrcpp::CompFunction<3>& operator[](int i) {
+        return mrcpp::CompFunctionVector::operator[](i);
+    }
+};
 
 } // namespace mrchem
