@@ -30,7 +30,6 @@
 #include "utils/math_utils.h"
 
 #include "qmfunctions/Orbital.h"
-#include "qmfunctions/OrbitalIterator.h"
 #include "qmfunctions/orbital_utils.h"
 #include "qmoperators/one_electron/PositionOperator.h"
 
@@ -64,7 +63,7 @@ RRMaximizer::RRMaximizer(double prec, OrbitalVector &Phi) {
     r_x.clear();
     R_x = orbital::calc_overlap_matrix(Phi, xPhi_Vec);
     for (int i = 0; i < Phi.size(); i++) {
-        if(!mrcpp::mpi::my_orb(i)) continue;
+        if(!mrcpp::mpi::my_func(i)) continue;
         xPhi_Vec[i].free(NUMBER::Total);
     }
 
@@ -72,7 +71,7 @@ RRMaximizer::RRMaximizer(double prec, OrbitalVector &Phi) {
     r_y.clear();
     R_y = orbital::calc_overlap_matrix(Phi, yPhi_Vec);
     for (int i = 0; i < Phi.size(); i++) {
-        if(!mrcpp::mpi::my_orb(i)) continue;
+        if(!mrcpp::mpi::my_func(i)) continue;
         yPhi_Vec[i].free(NUMBER::Total);
     }
 
@@ -80,7 +79,7 @@ RRMaximizer::RRMaximizer(double prec, OrbitalVector &Phi) {
     r_z.clear();
     R_z = orbital::calc_overlap_matrix(Phi, zPhi_Vec);
     for (int i = 0; i < Phi.size(); i++) {
-        if(!mrcpp::mpi::my_orb(i)) continue;
+        if(!mrcpp::mpi::my_func(i)) continue;
         zPhi_Vec[i].free(NUMBER::Total);
     }
 

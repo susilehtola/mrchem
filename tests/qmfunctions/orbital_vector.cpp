@@ -129,8 +129,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Alpha));
         Phi.distribute();
-        if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f1, NUMBER::Real, prec);
-        if (mrcpp::mpi::my_orb(Phi[1])) mrcpp::cplxfunc::project(Phi[1], f2, NUMBER::Imag, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
         normalize(Phi);
 
         SECTION("copy constructor") {
@@ -202,8 +202,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         REQUIRE(norms1[0] == Approx(-1.0));
         REQUIRE(norms1[1] == Approx(-1.0));
 
-        if (mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f1, NUMBER::Real, prec);
-        if (mrcpp::mpi::my_orb(Phi[1])) mrcpp::cplxfunc::project(Phi[1], f2, NUMBER::Real, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
 
         DoubleVector norms2 = get_norms(Phi);
         REQUIRE(norms2[0] > 0.0);
@@ -235,10 +235,10 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Beta));
         Phi.distribute();
 
-        if (true or mrcpp::mpi::my_orb(Phi[0])) mrcpp::cplxfunc::project(Phi[0], f1, NUMBER::Real, prec);
-        if (true or mrcpp::mpi::my_orb(Phi[1])) mrcpp::cplxfunc::project(Phi[1], f2, NUMBER::Real, prec);
-        if (true or mrcpp::mpi::my_orb(Phi[2])) mrcpp::cplxfunc::project(Phi[2], f3, NUMBER::Real, prec);
-        if (true or mrcpp::mpi::my_orb(Phi[3])) mrcpp::cplxfunc::project(Phi[3], f4, NUMBER::Real, prec);
+        if (true or mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
+        if (true or mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
+        if (true or mrcpp::mpi::my_func(Phi[2])) mrcpp::project(Phi[2], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f3), prec);
+        if (true or mrcpp::mpi::my_func(Phi[3])) mrcpp::project(Phi[3], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f4), prec);
 
         // Complex phase rotation
         for (int n = 0; n < Phi.size(); n++) {
@@ -290,8 +290,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
             Psi.push_back(Orbital(SPIN::Beta));
             Psi.distribute();
 
-            if (mrcpp::mpi::my_orb(Psi[0])) mrcpp::cplxfunc::project(Psi[0], f5, NUMBER::Real, prec);
-            if (mrcpp::mpi::my_orb(Psi[1])) mrcpp::cplxfunc::project(Psi[1], f6, NUMBER::Real, prec);
+            if (mrcpp::mpi::my_func(Psi[0])) mrcpp::project(Psi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f5), prec);
+            if (mrcpp::mpi::my_func(Psi[1])) mrcpp::project(Psi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f6), prec);
 
             orthogonalize(prec, Phi);
             orthogonalize(prec, Psi, Phi);
@@ -309,14 +309,14 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.distribute();
 
-        if (mrcpp::mpi::my_orb(Phi[0])) {
-            mrcpp::cplxfunc::project(Phi[0], f1, NUMBER::Real, prec);
-            mrcpp::cplxfunc::project(Phi[0], f2, NUMBER::Imag, prec);
+        if (mrcpp::mpi::my_func(Phi[0])) {
+            mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
+            mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
         }
 
-        if (mrcpp::mpi::my_orb(Phi[1])) {
-            mrcpp::cplxfunc::project(Phi[1], f3, NUMBER::Real, prec);
-            mrcpp::cplxfunc::project(Phi[1], f4, NUMBER::Imag, prec);
+        if (mrcpp::mpi::my_func(Phi[1])) {
+            mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f3), prec);
+            mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f4), prec);
         }
 
         orthogonalize(prec, Phi);

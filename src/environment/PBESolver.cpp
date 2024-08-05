@@ -57,18 +57,18 @@ PBESolver::PBESolver(const Permittivity &e,
         : GPESolver(e, rho_nuc, P, D, kain_hist, max_iter, dyn_thrs, density_type)
         , kappa(k) {}
 
-void PBESolver::computePBTerm(mrcpp::ComplexFunction &V_tot, const double salt_factor, mrcpp::ComplexFunction &pb_term) {
+void PBESolver::computePBTerm(mrcpp::CompFunction<3> &V_tot, const double salt_factor, mrcpp::CompFunction<3> &pb_term) {
     // create a lambda function for the sinh(V) term and multiply it with kappa and salt factor to get the PB term
     auto sinh_f = [salt_factor](const double &V) { return (salt_factor / (4.0 * mrcpp::pi)) * std::sinh(V); };
     resetComplexFunction(pb_term);
-    mrcpp::ComplexFunction sinhV;
+    mrcpp::CompFunction<3> sinhV;
     sinhV.alloc(NUMBER::Real);
     mrcpp::map(this->apply_prec / 100, sinhV.real(), V_tot.real(), sinh_f);
 
-    mrcpp::cplxfunc::multiply(pb_term, sinhV, this->kappa, this->apply_prec);
+    mrcpp::multiply(pb_term, sinhV, this->kappa, this->apply_prec);
 }
 
-void PBESolver::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFunction &out_gamma) {
+void PBESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunction<3> &out_gamma) {
 
     auto d_V = mrcpp::gradient(*derivative, potential.real()); // FunctionTreeVector
     resetComplexFunction(out_gamma);
@@ -76,11 +76,11 @@ void PBESolver::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFu
     for (int d = 0; d < 3; d++) {
         auto C_pin = this->epsilon.getCavity_p();
         mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
-        mrcpp::ComplexFunction cplxfunc_prod;
-        mrcpp::cplxfunc::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
+        mrcpp::CompFunction<3> cplxfunc_prod;
+        mrcpp::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
         // add result into out_gamma
         if (d == 0) {
-            mrcpp::cplxfunc::deep_copy(out_gamma, cplxfunc_prod);
+            mrcpp::deep_copy(out_gamma, cplxfunc_prod);
         } else {
             out_gamma.add(1.0, cplxfunc_prod);
         }
@@ -90,7 +90,7 @@ void PBESolver::computeGamma(mrcpp::ComplexFunction &potential, mrcpp::ComplexFu
     mrcpp::clear(d_V, true);
 
     // add PB term
-    mrcpp::ComplexFunction pb_term;
+    mrcpp::CompFunction<3> pb_term;
     auto salt_factor = 1.0; // placeholder for now, want to change it wrt to convergence in future
     computePBTerm(potential, salt_factor, pb_term);
     out_gamma.add(-1.0, pb_term);

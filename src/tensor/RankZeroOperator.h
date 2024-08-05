@@ -122,7 +122,7 @@ protected:
     Orbital applyOperTerm(int n, Orbital inp);
     Orbital daggerOperTerm(int n, Orbital inp);
     ComplexDouble traceOperTerm(int n, const Nuclei &nucs);
-    ComplexVector getCoefVector() const;
+    std::vector<ComplexDouble> getCoefVector() const;
 };
 
 inline RankZeroOperator operator*(ComplexDouble a, RankZeroOperator A) {
