@@ -114,12 +114,12 @@ bool initial_guess::mw::project_mo(OrbitalVector &Phi, double prec, const std::s
                 MSG_ERROR("Guess orbital not found: " << orbname.str());
                 success &= false;
             }
-            if (phi_i.isreal) {
+            if (phi_i.isreal()) {
                 // Refine to get accurate function values
                 mrcpp::refine_grid(phi_i.real(), 1);
                 mrcpp::project(prec, Phi[i].real(), phi_i.real());
             }
-            if (phi_i.iscomplex) {
+            if (phi_i.iscomplex()) {
                 // Refine to get accurate function values
                 mrcpp::refine_grid(phi_i.imag(), 1);
                 mrcpp::project(prec, Phi[i].complex(), phi_i.complex());

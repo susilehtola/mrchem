@@ -179,7 +179,7 @@ void density::compute_local_X(double prec, Density &rho, OrbitalVector &Phi, Orb
     double add_prec = prec / N_el; // prec for rho = sum_i rho_i
     if (Phi.size() != X.size()) MSG_ERROR("Size mismatch");
 
-    if (rho.Ncomp == 0) rho.alloc(0);
+    if (rho.Ncomp() == 0) rho.alloc(0);
 
     // Compute local density from own orbitals
     rho.real().setZero();
@@ -205,7 +205,7 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
     if (Phi.size() != X.size()) MSG_ERROR("Size mismatch");
     if (Phi.size() != Y.size()) MSG_ERROR("Size mismatch");
 
-    if (rho.Ncomp == 0) rho.alloc(0);
+    if (rho.Ncomp() == 0) rho.alloc(0);
 
     // Compute local density from own orbitals
     rho.real().setZero();
