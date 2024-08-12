@@ -49,8 +49,8 @@
 
 namespace mrchem {
 
-#define spin() data.n1[0]
-#define occ() data.n2[0]
+#define spin() func_ptr->data.n1[0]
+#define occ() func_ptr->data.n2[0]
 class Orbital : public mrcpp::CompFunction<3> {
 public:
     Orbital();
@@ -60,10 +60,10 @@ public:
     Orbital(int spin, int occ, int rank = -1);
     Orbital dagger() const;
 
-    //    const int spin() const {return data.n1[0];}
-    //    const int occ() const {return data.n2[0];}
+    //    const int spin() const {return data().n1[0];}
+    //    const int occ() const {return data().n2[0];}
     char printSpin() const;
-    void setSpin(int spin) {this->data.n2[0] = spin;}
+    void setSpin(int spin) {this->func_ptr->data.n2[0] = spin;}
     void saveOrbital(const std::string &file);
     void loadOrbital(const std::string &file);
 };
@@ -72,7 +72,7 @@ public:
 class OrbitalVector : public mrcpp::CompFunctionVector {
 public:
     OrbitalVector(int N = 0) : mrcpp::CompFunctionVector(N) {}
-    void push_back(Orbital orb) { orb.rank = size(); this->push_back(orb);}
+    void push_back(Orbital orb) { orb.func_ptr->rank = size(); this->push_back(orb);}
     void distribute() {this->distribute();}
     // Overloaded operator[] to return an Orbital element
     // for read (returns lvalue)

@@ -48,9 +48,9 @@ Orbital::Orbital(SPIN::type spin)
         : mrcpp::CompFunction<3>(spin) {
     if (this->spin() < 0) INVALID_ARG_ABORT;
     // n2 is used to store occupancy
-    if (this->spin() == SPIN::Paired) this->data.n2[0] = 2;
-    if (this->spin() == SPIN::Alpha) this->data.n2[0] = 1;
-    if (this->spin() == SPIN::Beta) this->data.n2[0] = 1;
+    if (this->spin() == SPIN::Paired) this->func_ptr->data.n2[0] = 2;
+    if (this->spin() == SPIN::Alpha) this->func_ptr->data.n2[0] = 1;
+    if (this->spin() == SPIN::Beta) this->func_ptr->data.n2[0] = 1;
 }
 
 /** @brief Constructor
@@ -65,11 +65,11 @@ Orbital::Orbital(int spin, int occ, int rank)
     if (this->spin() < 0) INVALID_ARG_ABORT;
     if (this->occ() < 0) {
         // n2 is defined as occupancy
-        if (this->spin() == SPIN::Paired) this->data.n2[0] = 2;
-        if (this->spin() == SPIN::Alpha) this->data.n2[0] = 1;
-        if (this->spin() == SPIN::Beta) this->data.n2[0] = 1;
+        if (this->spin() == SPIN::Paired) this->func_ptr->data.n2[0] = 2;
+        if (this->spin() == SPIN::Alpha) this->func_ptr->data.n2[0] = 1;
+        if (this->spin() == SPIN::Beta) this->func_ptr->data.n2[0] = 1;
     }
-    this->rank = rank;
+    this->func_ptr->rank = rank;
 }
 
 
@@ -78,7 +78,8 @@ Orbital::Orbital(int spin, int occ, int rank)
  * @param orb: orbital to copy
  *
  * Shallow copy: meta data is copied along with the pointers,
- * NO transfer of ownership.
+ * NO transfer of ownership:
+ * both orbitals are pointing to the same tree
  */
 Orbital::Orbital(Orbital &orb)
         : mrcpp::CompFunction<3>(orb) {}
@@ -89,7 +90,8 @@ Orbital::Orbital(Orbital &orb)
  * @param orb: orbital to copy
  *
  * Shallow copy: meta data is copied along with the pointers,
- * NO transfer of ownership.
+ * NO transfer of ownership:
+ * both orbitals are pointing to the same tree
  */
 //Orbital::Orbital(const mrcpp::CompFunction<3> &orb)
 //        : mrcpp::CompFunction<3>(orb) {}
@@ -101,12 +103,12 @@ Orbital::Orbital(const mrcpp::CompFunction<3>& orb)
  *
  * Returns a new orbital which is a shallow copy of *this orbital, with a flipped
  * conjugate parameter. Pointer ownership is not transferred, so *this and the output
- * orbital points to the same MW representations of the real and imaginary parts,
+ * orbital points to the same MW representations of the function tree,
  * however, they interpret the imaginary part with opposite sign.
  */
 Orbital Orbital::dagger() const {
     Orbital out(*this); // Shallow copy
-    out.conj = not this->conjugate();
+    out.func_ptr->conj = not this->conjugate();
     return out; // Return shallow copy
 }
 
@@ -119,8 +121,8 @@ Orbital Orbital::dagger() const {
  * and imaginary ("phi_0_im.tree") parts.
  */
 void Orbital::saveOrbital(const std::string &file) {
-    if (isreal) CompD[0]->saveTree(file);
-    if (iscomplex) CompC[0]->saveTree(file);
+    if (isreal()) CompD[0]->saveTree(file);
+    if (iscomplex()) CompC[0]->saveTree(file);
 }
 
 /** @brief Read orbital from disk
@@ -132,8 +134,8 @@ void Orbital::saveOrbital(const std::string &file) {
  * and imaginary ("phi_0_im.tree") parts.
  */
 void Orbital::loadOrbital(const std::string &file) {
-    if (isreal) CompD[0]->loadTree(file);
-    if (iscomplex) CompC[0]->loadTree(file);
+    if (isreal()) CompD[0]->loadTree(file);
+    if (iscomplex()) CompC[0]->loadTree(file);
 }
 
 /** @brief Returns a character representing the spin (a/b/p) */

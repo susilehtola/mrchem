@@ -43,8 +43,6 @@ TEST_CASE("Density", "[density]") {
         OrbitalVector Phi;
         for (int i = 0; i < 5; i++) Phi.push_back(Orbital(SPIN::Alpha));
         for (int i = 0; i < 2; i++) Phi.push_back(Orbital(SPIN::Beta));
-        for (int i = 0; i < 7; i++) Phi[i].isreal = 0;
-        for (int i = 0; i < 7; i++) Phi[i].iscomplex = 1;
 
         Phi.distribute();
 
