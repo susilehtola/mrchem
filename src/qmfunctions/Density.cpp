@@ -58,24 +58,24 @@ void Density::saveDensity(const std::string &file) {
     metafile << file << ".meta";
 
     // this flushes tree sizes
-    mrcpp::CompFunctionData<3> &func_data = mrcpp::CompFunction<3>::data;
+    mrcpp::CompFunctionData<3> &func_data = mrcpp::CompFunction<3>::func_ptr->data;
     flushFuncData();
 
     std::fstream f;
     f.open(metafile.str(), std::ios::out | std::ios::binary);
     if (not f.is_open()) MSG_ERROR("Unable to open file");
-    f.write((char *)&func_data, sizeof(mrcpp::FunctionData));
+    f.write((char *)&func_data, sizeof(mrcpp::CompFunctionData<3>));
     f.close();
 
     // writing real part
-    if (isreal) {
+    if (isreal()) {
         std::stringstream fname;
         fname << file << "_re";
         CompD[0]->saveTree(fname.str());
     }
 
     // writing imaginary part
-    if (iscomplex) {
+    if (iscomplex()) {
         std::stringstream fname;
         fname << file << "_cx";
         CompC[0]->saveTree(fname.str());
@@ -99,16 +99,16 @@ void Density::loadDensity(const std::string &file) {
     fmeta << file << ".meta";
 
     // this flushes tree sizes
-    mrcpp::CompFunctionData<3> &func_data = mrcpp::CompFunction<3>::data;
+    mrcpp::CompFunctionData<3> &func_data = mrcpp::CompFunction<3>::func_ptr->data;
     flushFuncData();
 
     std::fstream f;
     f.open(fmeta.str(), std::ios::in | std::ios::binary);
-    if (f.is_open()) f.read((char *)&func_data, sizeof(mrcpp::FunctionData));
+    if (f.is_open()) f.read((char *)&func_data, sizeof(mrcpp::CompFunctionData<3>));
     f.close();
 
     // reading real tree
-    if (isreal) {
+    if (isreal()) {
         std::stringstream fname;
         fname << file << "_re";
         alloc(0);
@@ -116,7 +116,7 @@ void Density::loadDensity(const std::string &file) {
     }
 
     // reading complex tree
-    if (iscomplex) {
+    if (iscomplex()) {
         std::stringstream fname;
         fname << file << "_cx";
         alloc(0);

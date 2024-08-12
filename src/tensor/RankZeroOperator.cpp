@@ -241,7 +241,7 @@ ComplexDouble RankZeroOperator::dagger(const mrcpp::Coord<3> &r) const {
  * is added upp with the corresponding coefficient.
  */
 Orbital RankZeroOperator::operator()(Orbital inp) {
-    if (not mrcpp::mpi::my_func(inp)) return inp.paramCopy();
+    if (inp.getNNodes() == 0) return inp.paramCopy();
 
     RankZeroOperator &O = *this;
     std::vector<mrcpp::CompFunction<3>> func_vec;
@@ -262,7 +262,7 @@ Orbital RankZeroOperator::operator()(Orbital inp) {
  * NOT IMPLEMENTED
  */
 Orbital RankZeroOperator::dagger(Orbital inp) {
-    if (not mrcpp::mpi::my_func(inp)) return inp.paramCopy();
+    if (inp.getNNodes() == 0) return inp.paramCopy();
 
     RankZeroOperator &O = *this;
     std::vector<mrcpp::CompFunction<3>> func_vec;
@@ -477,7 +477,7 @@ ComplexDouble RankZeroOperator::trace(const Nuclei &nucs) {
  */
 Orbital RankZeroOperator::applyOperTerm(int n, Orbital inp) {
     if (n >= this->oper_exp.size()) MSG_ABORT("Invalid oper term");
-    if (not mrcpp::mpi::my_func(inp)) return inp.paramCopy();
+    if (inp.getNNodes() == 0) return inp.paramCopy();
 
     Orbital out = inp;
     for (auto O_nm : this->oper_exp[n]) {
@@ -489,7 +489,7 @@ Orbital RankZeroOperator::applyOperTerm(int n, Orbital inp) {
 
 Orbital RankZeroOperator::daggerOperTerm(int n, Orbital inp) {
     if (n >= this->oper_exp.size()) MSG_ABORT("Invalid oper term");
-    if (not mrcpp::mpi::my_func(inp)) return inp.paramCopy();
+    if (inp.getNNodes() == 0) return inp.paramCopy();
 
     Orbital out = inp;
     for (int i = this->oper_exp[n].size() - 1; i >= 0; i--) {

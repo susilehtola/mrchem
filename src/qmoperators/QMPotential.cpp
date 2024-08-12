@@ -89,7 +89,7 @@ Orbital QMPotential::apply(Orbital inp) {
 Orbital QMPotential::dagger(Orbital inp) {
     if (this->apply_prec < 0.0) MSG_ERROR("Uninitialized operator");
 
-    Orbital out(inp.data);
+    Orbital out(inp.data());
     calc(out, inp, true);
     return out;
 }
@@ -131,7 +131,7 @@ void QMPotential::calc(mrcpp::CompFunction<3> &out, mrcpp::CompFunction<3> &inp,
     int adap = this->adap_build;
     double prec = this->apply_prec;
 
-    if (out.Ncomp > 0) MSG_ABORT("Output not empty");
+    if (out.Ncomp() > 0) MSG_ABORT("Output not empty");
     if (out.isShared()) MSG_ABORT("Cannot share this function");
     if (dagger) MSG_ERROR("Not implemented");
     if (inp.conjugate()) MSG_ERROR("Not implemented");

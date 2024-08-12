@@ -90,8 +90,8 @@ ComplexDouble orbital::dot(Orbital bra, Orbital ket) {
  *
  */
 ComplexDouble orbital::dot(mrcpp::CompFunction<3> bra, mrcpp::CompFunction<3>ket) {
-    if ((bra.data.n1[0] == SPIN::Alpha) and (ket.data.n1[0] == SPIN::Beta)) return 0.0;
-    if ((bra.data.n1[0] == SPIN::Beta) and (ket.data.n1[0] == SPIN::Alpha)) return 0.0;
+    if ((bra.data().n1[0] == SPIN::Alpha) and (ket.data().n1[0] == SPIN::Beta)) return 0.0;
+    if ((bra.data().n1[0] == SPIN::Beta) and (ket.data().n1[0] == SPIN::Alpha)) return 0.0;
     return mrcpp::dot(bra, ket);
 }
 
@@ -340,7 +340,7 @@ OrbitalVector orbital::param_copy(const OrbitalVector &Phi) {
     OrbitalVector out;
     for (const auto &i : Phi) {
         Orbital out_i;
-        out_i.data = i.data;
+        out_i.func_ptr->data = i.func_ptr->data;
         out.push_back(out_i);
     }
     return out;
@@ -1253,18 +1253,18 @@ void orbital::saveOrbital(const std::string &file, const Orbital &orb) {
     f.open(metafile.str(), std::ios::out | std::ios::binary);
     if (not f.is_open()) MSG_ERROR("Unable to open file");
     mrcpp::CompFunctionData<3> orbdata = orb.getFuncData();
-    f.write((char *)& orb.data, sizeof(mrcpp::CompFunctionData<3>));
+    f.write((char *)& orb.func_ptr->data, sizeof(mrcpp::CompFunctionData<3>));
     f.close();
 
     // writing real part
-    if (orb.isreal) {
+    if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
         orb.CompD[0]->saveTree(fname.str());
     }
 
     // writing complex tree
-    if (orb.iscomplex) {
+    if (orb.iscomplex()) {
         std::stringstream fname;
         fname << file << "_complex";
         orb.CompC[0]->saveTree(fname.str());
@@ -1289,26 +1289,26 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
 
     std::fstream f;
     f.open(fmeta.str(), std::ios::in | std::ios::binary);
-    if (f.is_open()) f.read((char *)&orb.data, sizeof(mrcpp::CompFunctionData<3>));
+    if (f.is_open()) f.read((char *)&orb.func_ptr->data, sizeof(mrcpp::CompFunctionData<3>));
     f.close();
 
-    std::array<int, 3> corner{orb.data.corner[0], orb.data.corner[1], orb.data.corner[2]};
-    std::array<int, 3> boxes{orb.data.boxes[0], orb.data.boxes[1], orb.data.boxes[2]};
-    mrcpp::BoundingBox<3> world(orb.data.scale, corner, boxes);
+    std::array<int, 3> corner{orb.data().corner[0], orb.data().corner[1], orb.data().corner[2]};
+    std::array<int, 3> boxes{orb.data().boxes[0], orb.data().boxes[1], orb.data().boxes[2]};
+    mrcpp::BoundingBox<3> world(orb.data().scale, corner, boxes);
 
     mrcpp::MultiResolutionAnalysis<3> *mra = nullptr;
-    if (orb.data.type == mrcpp::Interpol) {
-        mrcpp::InterpolatingBasis basis(orb.data.order);
-        mra = new mrcpp::MultiResolutionAnalysis<3>(world, basis, orb.data.depth);
-    } else if (orb.data.type == mrcpp::Legendre) {
-        mrcpp::LegendreBasis basis(orb.data.order);
-        mra = new mrcpp::MultiResolutionAnalysis<3>(world, basis, orb.data.depth);
+    if (orb.data().type == mrcpp::Interpol) {
+        mrcpp::InterpolatingBasis basis(orb.data().order);
+        mra = new mrcpp::MultiResolutionAnalysis<3>(world, basis, orb.data().depth);
+    } else if (orb.data().type == mrcpp::Legendre) {
+        mrcpp::LegendreBasis basis(orb.data().order);
+        mra = new mrcpp::MultiResolutionAnalysis<3>(world, basis, orb.data().depth);
     } else {
         MSG_ABORT("Invalid basis type!");
     }
 
     // reading real part
-    if (orb.data.isreal) {
+    if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
         orb.alloc(0);
@@ -1316,7 +1316,7 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     }
 
     // reading imaginary part
-    if (orb.data.iscomplex) {
+    if (orb.iscomplex()) {
         std::stringstream fname;
         fname << file << "_complex";
         orb.alloc(0);
