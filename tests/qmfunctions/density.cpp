@@ -44,8 +44,6 @@ TEST_CASE("Density", "[density]") {
         for (int i = 0; i < 5; i++) Phi.push_back(Orbital(SPIN::Alpha));
         for (int i = 0; i < 2; i++) Phi.push_back(Orbital(SPIN::Beta));
 
-        Phi.distribute();
-
         HydrogenFunction s1(1, 0, 0);
         HydrogenFunction s2(2, 0, 0);
         HydrogenFunction px(2, 1, 0);

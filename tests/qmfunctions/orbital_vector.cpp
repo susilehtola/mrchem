@@ -97,7 +97,6 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Beta));
         Phi.push_back(Orbital(SPIN::Beta));
-        Phi.distribute();
 
         OrbitalVector Phi_p = disjoin(Phi, SPIN::Paired);
         OrbitalVector Phi_a = disjoin(Phi, SPIN::Alpha);
@@ -128,7 +127,7 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         OrbitalVector Phi;
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Alpha));
-        Phi.distribute();
+
         if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
         if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
         normalize(Phi);
@@ -187,8 +186,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
             REQUIRE(get_electron_number(Psi, SPIN::Beta) == get_electron_number(Phi, SPIN::Beta));
 
             DoubleVector norms = get_norms(Psi);
-            REQUIRE(norms[0] < 0.0);
-            REQUIRE(norms[1] < 0.0);
+            REQUIRE(norms[0] < thrs);
+            REQUIRE(norms[1] < thrs);
         }
     }
 
@@ -196,11 +195,11 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         OrbitalVector Phi;
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Alpha));
-        Phi.distribute();
 
         DoubleVector norms1 = get_norms(Phi);
-        REQUIRE(norms1[0] == Approx(-1.0));
-        REQUIRE(norms1[1] == Approx(-1.0));
+
+        REQUIRE(norms1[0] == Approx(0.0));
+        REQUIRE(norms1[1] == Approx(0.0));
 
         if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
         if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
@@ -224,7 +223,7 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
                     if (i != j) REQUIRE(Snorm(i, j) >= Approx(std::abs(S(i, j))));
                 }
             }
-        }
+       }
     }
 
     SECTION("orthogonalization") {
@@ -307,17 +306,12 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         OrbitalVector Phi;
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Paired));
-        Phi.distribute();
 
         if (mrcpp::mpi::my_func(Phi[0])) {
-            mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
-            mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
+            mrcpp::project(Phi[0], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f1), prec);
+            mrcpp::project(Phi[1], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f2), prec);
         }
 
-        if (mrcpp::mpi::my_func(Phi[1])) {
-            mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f3), prec);
-            mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f4), prec);
-        }
 
         orthogonalize(prec, Phi);
         normalize(Phi);

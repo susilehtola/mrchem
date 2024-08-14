@@ -49,6 +49,7 @@
 
 namespace mrchem {
 
+// Note: cannot only define "getSpin()", because sometime we only have a CompFunction, not an Orbital
 #define spin() func_ptr->data.n1[0]
 #define occ() func_ptr->data.n2[0]
 class Orbital : public mrcpp::CompFunction<3> {
@@ -63,7 +64,7 @@ public:
     //    const int spin() const {return data().n1[0];}
     //    const int occ() const {return data().n2[0];}
     char printSpin() const;
-    void setSpin(int spin) {this->func_ptr->data.n2[0] = spin;}
+    void setSpin(int spin) {this->func_ptr->data.n1[0] = spin;}
     void saveOrbital(const std::string &file);
     void loadOrbital(const std::string &file);
 };
@@ -72,8 +73,12 @@ public:
 class OrbitalVector : public mrcpp::CompFunctionVector {
 public:
     OrbitalVector(int N = 0) : mrcpp::CompFunctionVector(N) {}
-    void push_back(Orbital orb) { orb.func_ptr->rank = size(); this->push_back(orb);}
-    void distribute() {this->distribute();}
+    void push_back(Orbital orb) {
+        mrcpp::CompFunction<3>& compfunc = orb;
+        compfunc.func_ptr->rank = size();
+        mrcpp::CompFunctionVector* compfuncvec = this;
+        compfuncvec->push_back(compfunc); // we must push in the vector<CompFunction>, not into the OrbitalVector!
+    }
     // Overloaded operator[] to return an Orbital element
     // for read (returns lvalue)
     Orbital operator[](int i) const {
