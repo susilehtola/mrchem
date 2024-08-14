@@ -80,28 +80,7 @@ Density density::compute(double prec, Orbital phi, DensityType spin) {
     if (std::abs(occ) < mrcpp::MachineZero) return Density(false);
 
     Density rho(false);
-    FunctionTreeVector<3> sum_vec;
-    if (phi.hasReal()) {
-        auto *real_2 = new FunctionTree<3>(*MRA);
-        mrcpp::copy_grid(*real_2, phi.real());
-        mrcpp::square(prec, *real_2, phi.real());
-        sum_vec.push_back(std::make_tuple(occ, real_2));
-    }
-    if (phi.hasImag()) {
-        auto *imag_2 = new FunctionTree<3>(*MRA);
-        mrcpp::copy_grid(*imag_2, phi.imag());
-        mrcpp::square(prec, *imag_2, phi.imag());
-        sum_vec.push_back(std::make_tuple(occ, imag_2));
-    }
-
-    rho.alloc(NUMBER::Real);
-    if (sum_vec.size() > 0) {
-        mrcpp::build_grid(rho.real(), sum_vec);
-        mrcpp::add(-1.0, rho.real(), sum_vec, 0);
-        mrcpp::clear(sum_vec, true);
-    } else {
-        rho.real().setZero();
-    }
+    mrcpp::multiply(-1.0, rho, occ, phi, phi, false, false, true); // the last "true" means use complex conjugate of the first phi
 
     return rho;
 }
@@ -149,10 +128,6 @@ void density::compute(double prec, Density &rho, OrbitalVector &Phi, OrbitalVect
 void density::compute_local(double prec, Density &rho, OrbitalVector &Phi, DensityType spin) {
     int N_el = orbital::get_electron_number(Phi);
     double abs_prec = (mrcpp::mpi::numerically_exact) ? -1.0 : prec / N_el;
-    if (not rho.hasReal()) rho.alloc(NUMBER::Real);
-
-    if (rho.hasReal()) rho.real().setZero();
-    if (rho.hasImag()) rho.imag().setZero();
 
     for (auto &phi_i : Phi) {
         if (mrcpp::mpi::my_func(phi_i)) {

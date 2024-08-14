@@ -39,9 +39,9 @@ auto f = [](const mrcpp::Coord<3> &r) -> double {
 };
 
 ComplexDouble i1 = {0.0, 1.0};
-auto g = [](const mrcpp::Coord<3> &r) -> ComplexDouble {
+auto g = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
-    return std::exp(-2.0 * R * R) * i1;
+    return std::exp(-2.0 * R * R);
 };
 
 TEST_CASE("Orbital", "[orbital]") {
@@ -58,7 +58,7 @@ TEST_CASE("Orbital", "[orbital]") {
             REQUIRE(phi_2.spin() == phi_1.spin());
             REQUIRE(phi_2.norm() == phi_1.norm());
             REQUIRE(&phi_2.real() == &phi_1.real());
-            REQUIRE(&phi_2.complex() == &phi_1.complex());
+            REQUIRE(phi_2.iscomplex() == phi_1.iscomplex());
         }
 
         SECTION("default constructor plus assignment") {
@@ -68,7 +68,7 @@ TEST_CASE("Orbital", "[orbital]") {
             REQUIRE(phi_2.spin() == phi_1.spin());
             REQUIRE(phi_2.norm() == phi_1.norm());
             REQUIRE(&phi_2.real() == &phi_1.real());
-            REQUIRE(&phi_2.complex() == &phi_1.complex());
+            REQUIRE(phi_2.iscomplex() == phi_1.iscomplex());
         }
 
         SECTION("assigment constructor") {
@@ -77,17 +77,17 @@ TEST_CASE("Orbital", "[orbital]") {
             REQUIRE(phi_2.spin() == phi_1.spin());
             REQUIRE(phi_2.norm() == phi_1.norm());
             REQUIRE(&phi_2.real() == &phi_1.real());
-            REQUIRE(&phi_2.complex() == &phi_1.complex());
+            REQUIRE(phi_2.iscomplex() == phi_1.iscomplex());
         }
 
         SECTION("deep copy") {
-            Orbital phi_2(SPIN::Alpha);
+            Orbital phi_2;
             mrcpp::deep_copy(phi_2, phi_1);
-            REQUIRE(phi_2.occ() != phi_1.occ());
-            REQUIRE(phi_2.spin() != phi_1.spin());
+            REQUIRE(phi_2.occ() == phi_1.occ());
+            REQUIRE(phi_2.spin() == phi_1.spin());
             REQUIRE(phi_2.norm() == phi_1.norm());
             REQUIRE(&phi_2.real() != &phi_1.real());
-            REQUIRE(not(phi_2.hasImag()));
+            REQUIRE(not(phi_2.iscomplex()));
         }
 
         SECTION("parameter copy") {
@@ -95,17 +95,17 @@ TEST_CASE("Orbital", "[orbital]") {
             REQUIRE(phi_2.occ() == phi_1.occ());
             REQUIRE(phi_2.spin() == phi_1.spin());
             REQUIRE(phi_2.norm() < 1.0);
-            REQUIRE(not(phi_2.hasReal()));
-            REQUIRE(not(phi_2.hasImag()));
+            REQUIRE(phi_2.isreal());
+            REQUIRE(not(phi_2.iscomplex()));
         }
     }
 
     SECTION("normalize") {
         Orbital phi(SPIN::Paired);
-        REQUIRE(phi.norm() == Approx(-1.0));
+        REQUIRE(phi.norm() == Approx(0.0));
 
-        mrcpp::project(phi, g, prec);
-        REQUIRE(phi.norm() > 1.0);
+        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        REQUIRE(phi.norm() > 0.8);
 
         orbital::normalize(phi);
         REQUIRE(phi.norm() == Approx(1.0));
@@ -117,7 +117,7 @@ TEST_CASE("Orbital", "[orbital]") {
 
         WHEN("orbitals have different spins") {
             Orbital phi_2(SPIN::Beta);
-            mrcpp::project(phi_2, static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(g), prec);
+            mrcpp::project(phi_2, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
 
             THEN("their overlap is zero") {
                 ComplexDouble S = orbital::dot(phi_1, phi_2);
@@ -128,29 +128,23 @@ TEST_CASE("Orbital", "[orbital]") {
 
         WHEN("orbitals have the same spin") {
             Orbital phi_2(SPIN::Alpha);
-            mrcpp::project(phi_2, static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(g), prec);
+            mrcpp::project(phi_2, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
 
             THEN("their overlap is non-zero") {
                 ComplexDouble S1 = orbital::dot(phi_1, phi_2);
-                REQUIRE(std::abs(S1.real()) < thrs);
-                REQUIRE(std::abs(S1.imag()) > thrs);
-
-                AND_THEN("<phi_1|phi_2^dag> = <phi_1|phi_2>*") {
-                    ComplexDouble S2 = orbital::dot(phi_1, phi_2.dagger());
-                    REQUIRE(S2.real() == Approx(S1.real()));
-                    REQUIRE(S2.imag() == Approx(-S1.imag()));
-                }
+                REQUIRE(std::abs(S1.real()) > thrs);
+                REQUIRE(std::abs(S1.imag()) < thrs);
             }
 
-                //            AND_THEN("they are orthogonalized") {
-               //  orbital::orthogonalize(prec, phi_2, phi_1);
-//
-            //     THEN("their overlap is zero") {
-           //          ComplexDouble S3 = orbital::dot(phi_1, phi_2);
-           //          REQUIRE(std::abs(S3.real()) < thrs);
-          //           REQUIRE(std::abs(S3.imag()) < thrs);
-          //       }
-           //  }
+            AND_THEN("they are orthogonalized") {
+                mrcpp::orthogonalize(prec, phi_2, phi_1);
+
+                THEN("their overlap is zero") {
+                    ComplexDouble S3 = orbital::dot(phi_1, phi_2);
+                    REQUIRE(std::abs(S3.real()) < thrs);
+                    REQUIRE(std::abs(S3.imag()) < thrs);
+                }
+            }
         }
     }
 }
