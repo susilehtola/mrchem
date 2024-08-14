@@ -50,7 +50,7 @@ namespace mrchem {
 
 class Density final : public mrcpp::CompFunction<3> {
 public:
-    explicit Density(bool share)
+    explicit Density(bool share = false)
             : mrcpp::CompFunction<3>(0, share) {}
     Density(const Density &dens)
             : mrcpp::CompFunction<3>(dens) {}

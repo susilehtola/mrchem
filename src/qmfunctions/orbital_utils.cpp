@@ -266,7 +266,6 @@ OrbitalVector orbital::rotate(OrbitalVector &Phi, const ComplexMatrix &U, double
     // The principle of this routine is that nodes are rotated one by one using matrix multiplication.
     // The routine does avoid when possible to move data, but uses pointers and indices manipulation.
     // MPI version does not use OMP yet, Serial version uses OMP
-
     OrbitalVector Psi = orbital::deep_copy(Phi);
     mrcpp::rotate(Psi, U, prec);
     return Psi;
