@@ -31,9 +31,11 @@
 namespace mrchem {
 
 template <int I, int J> ComplexMatrix RankTwoOperator<I, J>::operator()(Orbital bra, Orbital ket) {
-    RankTwoOperator<I, J> &O = *this;
+     std::cout<<" RankTwoOperator "<<std::endl;
+   RankTwoOperator<I, J> &O = *this;
     ComplexMatrix out(I, J);
     for (int i = 0; i < I; i++) out.row(i) = O[i](bra, ket);
+    std::cout<<" RankTwoOperator done "<<std::endl;
     return out;
 }
 
@@ -45,6 +47,7 @@ template <int I, int J> ComplexMatrix RankTwoOperator<I, J>::trace(OrbitalVector
 }
 
 template <int I, int J> ComplexMatrix RankTwoOperator<I, J>::trace(OrbitalVector &phi, OrbitalVector &x, OrbitalVector &y) {
+    std::cout<<" ARankTwoOperator "<<std::endl;
     RankTwoOperator<I, J> &O = *this;
     ComplexMatrix out(I, J);
     for (int i = 0; i < I; i++) out.row(i) = O[i].trace(phi, x, y);
@@ -52,6 +55,7 @@ template <int I, int J> ComplexMatrix RankTwoOperator<I, J>::trace(OrbitalVector
 }
 
 template <int I, int J> ComplexMatrix RankTwoOperator<I, J>::trace(const Nuclei &nucs) {
+    std::cout<<" BRankTwoOperator "<<std::endl;
     RankTwoOperator<I, J> &O = *this;
     ComplexMatrix out(I, J);
     for (int i = 0; i < I; i++) out.row(i) = O[i].trace(nucs);

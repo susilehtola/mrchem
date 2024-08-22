@@ -287,10 +287,9 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
             OrbitalVector Psi;
             Psi.push_back(Orbital(SPIN::Alpha));
             Psi.push_back(Orbital(SPIN::Beta));
-            Psi.distribute();
 
-            if (mrcpp::mpi::my_func(Psi[0])) mrcpp::project(Psi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f5), prec);
-            if (mrcpp::mpi::my_func(Psi[1])) mrcpp::project(Psi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f6), prec);
+            if (mrcpp::mpi::my_func(Psi[0])) mrcpp::project(Psi[0], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f5), prec);
+            if (mrcpp::mpi::my_func(Psi[1])) mrcpp::project(Psi[1], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f6), prec);
 
             orthogonalize(prec, Phi);
             orthogonalize(prec, Psi, Phi);

@@ -46,7 +46,6 @@ TEST_CASE("KineticOperator", "[kinetic_operator]") {
     int nFuncs = 3;
     OrbitalVector Phi;
     for (int n = 0; n < nFuncs; n++) Phi.push_back(Orbital(SPIN::Paired));
-    Phi.distribute();
 
     for (int n = 0; n < nFuncs; n++) {
         int nu[3] = {n, 0, 0};

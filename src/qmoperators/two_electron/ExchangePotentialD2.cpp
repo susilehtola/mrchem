@@ -132,9 +132,9 @@ Orbital ExchangePotentialD2::apply(Orbital phi_p) {
             coef_vec.push_back(spin_fac / phi_i.squaredNorm());
             coef_vec.push_back(spin_fac / phi_i.squaredNorm());
         }
-        if (not mrcpp::mpi::my_func(phi_i)) phi_i.free(NUMBER::Total);
-        if (not mrcpp::mpi::my_func(x_i)) x_i.free(NUMBER::Total);
-        if (not mrcpp::mpi::my_func(y_i)) y_i.free(NUMBER::Total);
+        if (not mrcpp::mpi::my_func(phi_i)) phi_i.free();
+        if (not mrcpp::mpi::my_func(x_i)) x_i.free();
+        if (not mrcpp::mpi::my_func(y_i)) y_i.free();
     }
 
     // compute out_p = sum_i c_i*(ex_xip + ex_iyp)
@@ -191,9 +191,9 @@ Orbital ExchangePotentialD2::dagger(Orbital phi_p) {
             coef_vec.push_back(spin_fac / phi_i.squaredNorm());
             coef_vec.push_back(spin_fac / phi_i.squaredNorm());
         }
-        if (not mrcpp::mpi::my_func(phi_i)) phi_i.free(NUMBER::Total);
-        if (not mrcpp::mpi::my_func(x_i)) x_i.free(NUMBER::Total);
-        if (not mrcpp::mpi::my_func(y_i)) y_i.free(NUMBER::Total);
+        if (not mrcpp::mpi::my_func(phi_i)) phi_i.free();
+        if (not mrcpp::mpi::my_func(x_i)) x_i.free();
+        if (not mrcpp::mpi::my_func(y_i)) y_i.free();
     }
 
     // compute ex_p = sum_i c_i*(ex_ixp + ex_yip)

@@ -177,6 +177,8 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
     int N_el = orbital::get_electron_number(Phi);
     double mult_prec = prec;       // prec for rho_i = |x_i><phi_i| + |phi_i><y_i|
     double add_prec = prec / N_el; // prec for rho = sum_i rho_i
+    std::cout<<"ERROR"<<std::endl;
+    MSG_ERROR(" NOT implemented");
     if (Phi.size() != X.size()) MSG_ERROR("Size mismatch");
     if (Phi.size() != Y.size()) MSG_ERROR("Size mismatch");
 

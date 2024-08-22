@@ -29,7 +29,6 @@
 
 #include "Orbital.h"
 #include "orbital_utils.h"
-#include "qmfunction_utils.h"
 
 namespace mrchem {
 
