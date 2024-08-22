@@ -220,7 +220,7 @@ TEST_CASE("QMFunction", "[qmfunction]") {
             ComplexDouble c(0.5, 0.5);
             mrcpp::CompFunction func_h;
             SECTION("with complex scalar") {
-                mrcpp::add(func_h, c, f_re, c, f_im, -1.0);
+               mrcpp::add(func_h, c, f_re, c, f_im, -1.0);
                 REQUIRE(func_h.integrate().real() == Approx(std::real(std::real(c)*f_re.integrate() - std::imag(c)*std::imag(f_im.integrate()))));
                 REQUIRE(func_h.integrate().imag() == Approx(std::real(std::imag(c)*f_re.integrate() + std::real(c)*std::imag(f_im.integrate()))));
             }

@@ -37,8 +37,9 @@ namespace mrchem {
 /** Identity operator is a deep copy */
 Orbital QMIdentity::apply(Orbital inp) {
     if (this->apply_prec < 0.0) MSG_ERROR("Uninitialized operator");
-    Orbital out(inp);
+    Orbital out = inp.paramCopy();
     mrcpp::deep_copy(out, inp);
+
     return out;
 }
 

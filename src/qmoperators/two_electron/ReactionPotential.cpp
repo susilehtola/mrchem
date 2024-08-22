@@ -58,7 +58,7 @@ void ReactionPotential::setup(double prec) {
 }
 
 void ReactionPotential::clear() {
-    mrcpp::CompFunction<3>::free(NUMBER::Total); // delete FunctionTree pointers
+    mrcpp::CompFunction<3>::free(); // delete FunctionTree pointers
     clearApplyPrec();
     this->solver->clear();
 }

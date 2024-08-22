@@ -476,7 +476,7 @@ OrbitalVector orbital::load_orbitals(const std::string &file, int n_orbs) {
         if (phi_i.hasReal() or phi_i.hasImag()) {
             Phi.push_back(phi_i);
             print_utils::qmfunction(2, "'" + orbname.str() + "'", phi_i, t1);
-            if (not mrcpp::mpi::my_func(phi_i)) phi_i.free(NUMBER::Total);
+            if (not mrcpp::mpi::my_func(phi_i)) phi_i.free();
         } else {
             break;
         }
@@ -513,12 +513,12 @@ void orbital::orthogonalize(double prec, OrbitalVector &Phi) {
             int src = (Phi[j].getRank()) % mrcpp::mpi::wrk_size;
             int dst = (Phi[i].getRank()) % mrcpp::mpi::wrk_size;
             if (mrcpp::mpi::my_func(Phi[i]) and mrcpp::mpi::my_func(Phi[j])) {
-                orbital::orthogonalize(prec / Phi.size(), Phi[i], Phi[j]);
+                mrcpp::orthogonalize(prec / Phi.size(), Phi[i], Phi[j]);
             } else {
                 if (mrcpp::mpi::my_func(Phi[i])) {
                     mrcpp::mpi::recv_function(Phi[j], src, tag, mrcpp::mpi::comm_wrk);
-                    orbital::orthogonalize(prec / Phi.size(), Phi[i], Phi[j]);
-                    Phi[j].free(NUMBER::Total);
+                    mrcpp::orthogonalize(prec / Phi.size(), Phi[i], Phi[j]);
+                    Phi[j].free();
                 }
                 if (mrcpp::mpi::my_func(Phi[j])) mrcpp::mpi::send_function(Phi[j], dst, tag, mrcpp::mpi::comm_wrk);
             }
@@ -550,7 +550,7 @@ void orbital::orthogonalize(double prec, OrbitalVector &Phi, OrbitalVector &Psi)
  *
  */
 ComplexMatrix orbital::calc_overlap_matrix(OrbitalVector &BraKet) {
-    return mrcpp::calc_overlap_matrix(BraKet);
+     return mrcpp::calc_overlap_matrix(BraKet);
 }
 
 /** @brief Compute the overlap matrix S_ij = <bra_i|ket_j>

@@ -36,14 +36,15 @@ using namespace orbital;
 
 namespace identity_operator_tests {
 
-auto f = [](const mrcpp::Coord<3> &r) -> double {
+ComplexDouble i1 = {0.0, 1.0};
+auto f = [](const mrcpp::Coord<3> &r) -> ComplexDouble {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-1.0 * R * R);
 };
 
-auto g = [](const mrcpp::Coord<3> &r) -> double {
+auto g = [](const mrcpp::Coord<3> &r) -> ComplexDouble {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
-    return std::exp(-2.0 * R * R);
+    return std::exp(-2.0 * R * R) * i1;
 };
 
 TEST_CASE("IdentityOperator", "[identity_operator]") {
@@ -52,26 +53,28 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
 
     SECTION("apply") {
         Orbital phi(SPIN::Paired);
-        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
-        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
+        Orbital psi(SPIN::Paired);
+        mrcpp::project(phi, f, prec);
+        mrcpp::project(psi, g, prec);
+        mrcpp::CompFunction func_h;
+        ComplexDouble c(1.0, 0.0);
+        mrcpp::add(func_h, c, phi, c, psi, -1.0);
 
         IdentityOperator I;
         I.setup(prec);
-        Orbital Iphi = I(phi);
+        Orbital Iphi = I(func_h);
         I.clear();
-
         REQUIRE(Iphi.integrate().real() == Approx(phi.integrate().real()));
-        REQUIRE(Iphi.integrate().imag() == Approx(phi.integrate().imag()));
+        REQUIRE(Iphi.integrate().imag() == Approx(psi.integrate().imag()));
     }
 
     SECTION("vector apply") {
         OrbitalVector Phi;
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Paired));
-        Phi.distribute();
 
-        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
-        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f, prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], g, prec);
         normalize(Phi);
 
         IdentityOperator I;
@@ -96,8 +99,8 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
 
     SECTION("expectation value") {
         Orbital phi(SPIN::Paired);
-        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
-        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
+        mrcpp::project(phi, f, prec);
+        mrcpp::project(phi, g, prec);
 
         IdentityOperator I;
         I.setup(prec);
@@ -112,12 +115,12 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
         OrbitalVector Phi;
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Paired));
-        Phi.distribute();
 
-        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
-        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f, prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], g, prec);
 
         IdentityOperator I;
+
         I.setup(prec);
         ComplexMatrix S = I(Phi, Phi);
         I.clear();

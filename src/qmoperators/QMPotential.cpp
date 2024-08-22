@@ -73,7 +73,7 @@ QMPotential::QMPotential(const QMPotential &inp)
 Orbital QMPotential::apply(Orbital inp) {
     if (this->apply_prec < 0.0) MSG_ERROR("Uninitialized operator");
 
-    Orbital out(inp);
+    Orbital out;
     calc(out, inp, false);
 
     return out;
@@ -89,7 +89,7 @@ Orbital QMPotential::apply(Orbital inp) {
 Orbital QMPotential::dagger(Orbital inp) {
     if (this->apply_prec < 0.0) MSG_ERROR("Uninitialized operator");
 
-    Orbital out(inp.data());
+    Orbital out = inp.paramCopy();
     calc(out, inp, true);
     return out;
 }
@@ -130,7 +130,6 @@ QMOperatorVector QMPotential::apply(QMOperator_p &O) {
 void QMPotential::calc(mrcpp::CompFunction<3> &out, mrcpp::CompFunction<3> &inp, bool dagger) {
     int adap = this->adap_build;
     double prec = this->apply_prec;
-
     if (out.Ncomp() > 0) MSG_ABORT("Output not empty");
     if (out.isShared()) MSG_ABORT("Cannot share this function");
     if (dagger) MSG_ERROR("Not implemented");
@@ -139,7 +138,7 @@ void QMPotential::calc(mrcpp::CompFunction<3> &out, mrcpp::CompFunction<3> &inp,
     mrcpp::CompFunction<3> &V = *this;
     double coef = 1.0;
     mrcpp::copy_grid(out, inp);
-    mrcpp::multiply(prec, out, coef, V, inp, adap);
+    mrcpp::multiply(prec, out, coef, inp, V, adap);
 }
 
 } // namespace mrchem
