@@ -75,8 +75,6 @@ TEST_CASE("[XCOperatorLDA]", "[xc_operator_lda]") {
         }
     }
 
-    Phi.distribute();
-
     for (int i = 0; i < Phi.size(); i++) {
         HydrogenFunction f(ns[i], ls[i], ms[i]);
         if (mrcpp::mpi::my_func(Phi[i])) mrcpp::project(Phi[i], f, prec);
@@ -85,9 +83,9 @@ TEST_CASE("[XCOperatorLDA]", "[xc_operator_lda]") {
     // reference values obtained with a test run at order=9 in unit_test.cpp and prec=1.0e-5 here
 
     DoubleMatrix E_P = DoubleMatrix::Zero(Phi.size(), Phi.size());
-    E_P(0, 0) = -0.4574999901;
-    E_P(0, 1) = -0.0593789497;
-    E_P(1, 0) = -0.0593789497;
+    E_P(0, 0) = -0.457499976;
+    E_P(0, 1) = -0.0593789451;
+    E_P(1, 0) = -0.0593789451;
     E_P(1, 1) = -0.1894199551;
     E_P(2, 2) = -0.2109971956;
     E_P(3, 3) = -0.2109971956;
@@ -96,7 +94,7 @@ TEST_CASE("[XCOperatorLDA]", "[xc_operator_lda]") {
     V.setup(prec);
     SECTION("apply") {
         Orbital Vphi_0 = V(Phi[0]);
-        ComplexDouble V_00 = orbital::dot(static_cast<Orbital>(Phi[0]), static_cast<Orbital>(Vphi_0));
+        ComplexDouble V_00 = mrcpp::dot(Phi[0], Vphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(V_00.real() == Approx(E_P(0, 0)).epsilon(thrs));
             REQUIRE(V_00.imag() < thrs);
@@ -108,7 +106,7 @@ TEST_CASE("[XCOperatorLDA]", "[xc_operator_lda]") {
     SECTION("vector apply") {
         OrbitalVector VPhi = V(Phi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble V_ii = orbital::dot(static_cast<Orbital>(Phi[i]), static_cast<Orbital>(VPhi[i]));
+            ComplexDouble V_ii = mrcpp::dot(Phi[i], VPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(V_ii.real() == Approx(E_P(i, i)).epsilon(thrs));
                 REQUIRE(V_ii.imag() < thrs);

@@ -81,8 +81,8 @@ void CoulombPotential::setup(double prec) {
     if (hasDensity()) {
         setupGlobalPotential(prec);
     } else if (mrcpp::mpi::numerically_exact) {
-        setupGlobalDensity(prec);
-        setupGlobalPotential(prec);
+       setupGlobalDensity(prec);
+       setupGlobalPotential(prec);
     } else {
         // Keep each local contribution a bit
         // more precise than strictly necessary
@@ -100,8 +100,8 @@ void CoulombPotential::setup(double prec) {
  * The operator can now be reused after another setup.
  */
 void CoulombPotential::clear() {
-    mrcpp::CompFunction<3>::free(NUMBER::Total); // delete FunctionTree pointers
-    this->density.free(NUMBER::Total);           // delete FunctionTree pointers
+    mrcpp::CompFunction<3>::free(); // delete FunctionTree pointers
+    this->density.free();           // delete FunctionTree pointers
     clearApplyPrec();                            // apply_prec = -1
 }
 
@@ -119,15 +119,14 @@ void CoulombPotential::setupGlobalPotential(double prec) {
     mrcpp::CompFunction<3> &V = *this;
     mrcpp::CompFunction<3> &rho = this->density;
 
-    if (V.hasReal()) MSG_ERROR("Potential not properly cleared");
-    if (V.hasImag()) MSG_ERROR("Potential not properly cleared");
+    if (V.getNNodes()>8) MSG_ERROR("Potential not properly cleared");
 
     // Adjust precision by system size
     double abs_prec = prec / rho.norm();
     bool need_to_apply = not(V.isShared()) or mrcpp::mpi::share_master();
 
     Timer timer;
-    V.alloc(NUMBER::Real);
+    V.alloc(0);
     if (need_to_apply) mrcpp::apply(abs_prec, V.real(), P, rho.real());
     mrcpp::mpi::share_function(V, 0, 22445, mrcpp::mpi::comm_share);
     print_utils::qmfunction(3, "Compute global potential", V, timer);

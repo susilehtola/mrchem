@@ -201,7 +201,8 @@ RankZeroOperator &RankZeroOperator::operator-=(const RankZeroOperator &O) {
 void RankZeroOperator::setup(double prec) {
     for (auto &i : this->oper_exp) {
         for (int j = 0; j < i.size(); j++) {
-            i[j]->setup(prec); }
+            i[j]->setup(prec);
+        }
     }
 }
 
@@ -239,6 +240,7 @@ ComplexDouble RankZeroOperator::dagger(const mrcpp::Coord<3> &r) const {
  * Applies each term of the operator expansion to the input orbital. First all
  * components of each term are applied consecutively, then the output of each term
  * is added upp with the corresponding coefficient.
+ * NB: the result is put at the same location as the input (out and inp trees are the same tree)
  */
 Orbital RankZeroOperator::operator()(Orbital inp) {
     if (inp.getNNodes() == 0) return inp.paramCopy();
@@ -475,23 +477,26 @@ ComplexDouble RankZeroOperator::trace(const Nuclei &nucs) {
  * This consecutively applies all components of a particular term of the operator
  * expansion to the input orbital.
  */
-Orbital RankZeroOperator::applyOperTerm(int n, Orbital inp) {
+Orbital RankZeroOperator::applyOperTerm(int n, const Orbital& inp) {
     if (n >= this->oper_exp.size()) MSG_ABORT("Invalid oper term");
-    if (inp.getNNodes() == 0) return inp.paramCopy();
+    Orbital out;
+    mrcpp::deep_copy(out, inp);
 
-    Orbital out = inp;
-    for (auto O_nm : this->oper_exp[n]) {
+    if (inp.getNNodes() == 0) return out;
+    int i=0;
+     for (auto O_nm : this->oper_exp[n]) {
         if (O_nm == nullptr) MSG_ABORT("Invalid oper term");
         out = O_nm->apply(out);
     }
     return out;
 }
 
-Orbital RankZeroOperator::daggerOperTerm(int n, Orbital inp) {
+Orbital RankZeroOperator::daggerOperTerm(int n, const Orbital& inp) {
     if (n >= this->oper_exp.size()) MSG_ABORT("Invalid oper term");
-    if (inp.getNNodes() == 0) return inp.paramCopy();
+    Orbital out;
+    mrcpp::deep_copy(out, inp);
+    if (inp.getNNodes() == 0) return out;
 
-    Orbital out = inp;
     for (int i = this->oper_exp[n].size() - 1; i >= 0; i--) {
         auto O_nm = this->oper_exp[n][i];
         if (O_nm == nullptr) MSG_ABORT("Invalid oper term");

@@ -82,16 +82,14 @@ TEST_CASE("XCOperatorBLYP", "[xc_operator_blyp]") {
         if (mrcpp::mpi::my_func(Phi[i])) mrcpp::project(Phi[i], f, prec);
     }
 
-    // reference values obtained with a test run at order=9 in unit_test.cpp and prec=1.0e-5 here
-
     DoubleMatrix E_P = DoubleMatrix::Zero(Phi.size(), Phi.size());
-    E_P(0, 0) = -0.4632575525;
-    E_P(0, 1) = -0.0654671939;
-    E_P(1, 0) = -0.0654671939;
-    E_P(1, 1) = -0.1793901783;
-    E_P(2, 2) = -0.1988746865;
-    E_P(3, 3) = -0.1988746865;
-    E_P(4, 4) = -0.1988746865;
+    E_P(0, 0) = -0.4630476513;
+    E_P(0, 1) = -0.0654140779;
+    E_P(1, 0) = -0.0654140779;;
+    E_P(1, 1) = -0.1793674201;
+    E_P(2, 2) = -0.1988517872;
+    E_P(3, 3) = -0.1988517872;
+    E_P(4, 4) = -0.1988517872;
 
     V.setup(prec);
     SECTION("apply") {

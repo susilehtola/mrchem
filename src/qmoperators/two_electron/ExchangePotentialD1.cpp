@@ -292,7 +292,7 @@ void ExchangePotentialD1::setupInternal(double prec) {
                     Ex[iorb].add(j_fac, ex_jji);
                     Ex[jorb].add(j_fac, ex_iij);
                 }
-                ex_jji.free(NUMBER::Total);
+                ex_jji.free();
                 t_snd.stop();
             }
             Timer timerx;
@@ -326,11 +326,11 @@ void ExchangePotentialD1::setupInternal(double prec) {
                         tasksMaster.put_readytask(jorb, i0 + N);
                     }
                     t_snd.stop();
-                    ex_j.free(NUMBER::Total);
+                    ex_j.free();
                 } else if (iijfunc_vec.size() > 0) {
                     MSG_ERROR("Exchange exists but has no real and no Imag parts");
                 }
-                for (int jj = 0; jj < iijfunc_vec.size(); jj++) iijfunc_vec[jj].free(NUMBER::Total);
+                for (int jj = 0; jj < iijfunc_vec.size(); jj++) iijfunc_vec[jj].free();
             }
         }
     }
@@ -364,8 +364,8 @@ void ExchangePotentialD1::setupInternal(double prec) {
                 auto tmp_j = Ex[j].paramCopy();
                 mrcpp::linear_combination(tmp_j, coef_vec, iijfunc_vec, prec);
                 Ex[j].add(1.0, tmp_j);
-                tmp_j.free(NUMBER::Total);
-                for (int jj = 0; jj < iijfunc_vec.size(); jj++) iijfunc_vec[jj].free(NUMBER::Total);
+                tmp_j.free();
+                for (int jj = 0; jj < iijfunc_vec.size(); jj++) iijfunc_vec[jj].free();
                 iijfunc_vec.clear();
                 Ex[j].crop(prec);
                 t_add.stop();
@@ -377,8 +377,8 @@ void ExchangePotentialD1::setupInternal(double prec) {
             auto tmp_j = Ex[j].paramCopy();
             mrcpp::linear_combination(tmp_j, coef_vec, iijfunc_vec, prec);
             Ex[j].add(1.0, tmp_j);
-            tmp_j.free(NUMBER::Total);
-            for (int jj = 0; jj < iijfunc_vec.size(); jj++) iijfunc_vec[jj].free(NUMBER::Total);
+            tmp_j.free();
+            for (int jj = 0; jj < iijfunc_vec.size(); jj++) iijfunc_vec[jj].free();
             Ex[j].crop(prec);
             t_add.stop();
         }
@@ -432,7 +432,7 @@ Orbital ExchangePotentialD1::calcExchange(Orbital phi_p) {
             func_vec.push_back(ex_iip);
         }
 
-        if (not mrcpp::mpi::my_func(i)) phi_i.free(NUMBER::Total);
+        if (not mrcpp::mpi::my_func(i)) phi_i.free();
     }
 
     // compute ex_p = sum_i c_i*ex_iip

@@ -65,7 +65,7 @@ protected:
     auto &getPoisson() { return this->poisson; }
     auto &getDensity() { return this->density; }
 
-    bool hasDensity() const { return (this->density.squaredNorm() < 0.0) ? false : true; }
+    bool hasDensity() const { return (this->density.squaredNorm() <= 0.0) ? false : true; }
 
     void setup(double prec) override;
     void clear() override;

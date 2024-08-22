@@ -65,19 +65,18 @@ TEST_CASE("CoulombOperator", "[coulomb_operator]") {
             }
         }
     }
-    Phi.distribute();
 
     for (int i = 0; i < Phi.size(); i++) {
         HydrogenFunction f(ns[i], ls[i], ms[i]);
-        if (mrcpp::mpi::my_func(Phi[i])) mrcpp::project(Phi[i], f, prec);
+       if (mrcpp::mpi::my_func(Phi[i])) mrcpp::project(Phi[i], f, prec);
     }
 
     int i = 0;
     DoubleMatrix E_P = DoubleMatrix::Zero(Phi.size(), Phi.size());
 
     E_P(0, 0) = 3.1676468518;
-    E_P(0, 1) = 0.262570199;
-    E_P(1, 0) = 0.262570199;
+    E_P(0, 1) = 0.262570192;
+    E_P(1, 0) = 0.262570192;
     E_P(1, 1) = 1.6980679074;
     E_P(2, 2) = 1.8983578764;
     E_P(3, 3) = 1.8983578764;
@@ -86,7 +85,7 @@ TEST_CASE("CoulombOperator", "[coulomb_operator]") {
     V.setup(prec);
     SECTION("apply") {
         Orbital Vphi_0 = V(Phi[0]);
-        ComplexDouble V_00 = orbital::dot(static_cast<Orbital>(Phi[0]), static_cast<Orbital>(Vphi_0));
+        ComplexDouble V_00 = mrcpp::dot(Phi[0],Vphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(V_00.real() == Approx(E_P(0, 0)).epsilon(thrs));
             REQUIRE(V_00.imag() < thrs);

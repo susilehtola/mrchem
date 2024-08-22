@@ -58,7 +58,7 @@ class QMOperator {
 public:
     QMOperator() = default;
     virtual ~QMOperator() {
-        if (prec() > 0.0) MSG_ERROR("Operator not properly cleared");
+        if (prec() > 0.0) MSG_ERROR("QMOperator not properly cleared");
     }
 
     double prec() { return this->apply_prec; }
