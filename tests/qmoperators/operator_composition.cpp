@@ -384,7 +384,7 @@ TEST_CASE("Operator composition", "[operator_composition]") {
             REQUIRE(SI.size(0) == 2);
 
             SI.setup(prec);
-            const ComplexDouble ref = {0.0, 0.5};
+            const ComplexDouble ref = {0.0, 0.0}; //spin is flipped->orthogonal
             const ComplexMatrix val = SI(Phi, Phi);
             REQUIRE(val(0, 0).real() == Approx(ref.real()).margin(thrs));
             REQUIRE(val(0, 0).imag() == Approx(ref.imag()).epsilon(thrs));
@@ -397,7 +397,7 @@ TEST_CASE("Operator composition", "[operator_composition]") {
             REQUIRE(SI.size(0) == 1);
 
             SI.setup(prec);
-            const ComplexDouble ref = {0.0, 0.5};
+            const ComplexDouble ref = {0.0, 0.0}; //spin is flipped->orthogonal
             const ComplexMatrix val = SI(Phi, Phi);
             REQUIRE(val(0, 0).real() == Approx(ref.real()).margin(thrs));
             REQUIRE(val(0, 0).imag() == Approx(ref.imag()).epsilon(thrs));
@@ -436,7 +436,7 @@ TEST_CASE("Operator composition", "[operator_composition]") {
             REQUIRE(SD.size(0) == 2);
 
             SD.setup(prec);
-            const ComplexDouble ref = {0.0, -std::sqrt(2.0) / 4.0};
+            const ComplexDouble ref = {0.0, 0.0}; //spin is flipped->orthogonal
             const ComplexMatrix val = SD(Phi, Phi);
             REQUIRE(val(0, 1).real() == Approx(ref.real()).margin(thrs));
             REQUIRE(val(0, 1).imag() == Approx(ref.imag()).epsilon(thrs));
@@ -449,7 +449,7 @@ TEST_CASE("Operator composition", "[operator_composition]") {
             REQUIRE(SD.size(0) == 2);
 
             SD.setup(prec);
-            const ComplexDouble ref = {0.0, -std::sqrt(2.0) / 4.0};
+            const ComplexDouble ref = {0.0, 0.0}; //spin is flipped->orthogonal
             const ComplexMatrix val = SD(Phi, Phi);
             REQUIRE(val(0, 1).real() == Approx(ref.real()).margin(thrs));
             REQUIRE(val(0, 1).imag() == Approx(ref.imag()).epsilon(thrs));

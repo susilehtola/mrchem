@@ -428,7 +428,7 @@ Orbital ExchangePotentialD1::calcExchange(Orbital phi_p) {
         if (std::abs(spin_fac) >= mrcpp::MachineZero) {
             Orbital ex_iip = phi_p.paramCopy();
             calcExchange_kij(precf, phi_i, phi_i, phi_p, ex_iip);
-            coef_vec.push_back(spin_fac / phi_i.squaredNorm());
+            coef_vec.push_back(spin_fac / phi_i.getSquareNorm());
             func_vec.push_back(ex_iip);
         }
 

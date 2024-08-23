@@ -103,10 +103,10 @@ TEST_CASE("XCHessianPBE", "[xc_hessian_pbe]") {
     int i = 0;
     DoubleMatrix E_P = DoubleMatrix::Zero(Phi.size(), Phi.size());
 
-    E_P(0, 0) = -0.0496021801;
-    E_P(0, 1) = -0.0234437207;
-    E_P(1, 0) = -0.0234437207;
-    E_P(1, 1) = 0.0061055193;
+    E_P(0, 0) = -0.049699524;
+    E_P(0, 1) = -0.0234667191;
+    E_P(1, 0) = -0.0234667191;
+    E_P(1, 1) = 0.0060967104;
 
     V.setup(prec);
     SECTION("apply") {

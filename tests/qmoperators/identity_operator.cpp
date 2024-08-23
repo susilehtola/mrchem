@@ -107,7 +107,7 @@ TEST_CASE("IdentityOperator", "[identity_operator]") {
         ComplexDouble S = I(phi, phi);
         I.clear();
 
-        REQUIRE(S.real() == Approx(phi.squaredNorm()));
+        REQUIRE(S.real() == Approx(phi.getSquareNorm()));
         REQUIRE(S.imag() < thrs);
     }
 

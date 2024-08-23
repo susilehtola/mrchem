@@ -622,7 +622,7 @@ void driver::scf::plot_quantities(const json &json_plot, Molecule &mol) {
         if (line) plt.linePlot(npts, rho, fname);
         if (surf) plt.surfPlot(npts, rho, fname);
         if (cube) plt.cubePlot(npts, rho, fname);
-        rho.free(NUMBER::Total);
+        rho.free();
         mrcpp::print::time(1, fname, t_lap);
 
         if (orbital::size_singly(Phi) > 0) {
@@ -633,7 +633,7 @@ void driver::scf::plot_quantities(const json &json_plot, Molecule &mol) {
             if (surf) plt.surfPlot(npts, rho, fname);
             if (cube) plt.cubePlot(npts, rho, fname);
             mrcpp::print::time(1, fname, t_lap);
-            rho.free(NUMBER::Total);
+            rho.free();
 
             t_lap.start();
             fname = path + "/rho_a";
@@ -642,7 +642,7 @@ void driver::scf::plot_quantities(const json &json_plot, Molecule &mol) {
             if (surf) plt.surfPlot(npts, rho, fname);
             if (cube) plt.cubePlot(npts, rho, fname);
             mrcpp::print::time(1, fname, t_lap);
-            rho.free(NUMBER::Total);
+            rho.free();
 
             t_lap.start();
             fname = path + "/rho_b";
@@ -650,7 +650,7 @@ void driver::scf::plot_quantities(const json &json_plot, Molecule &mol) {
             if (line) plt.linePlot(npts, rho, fname);
             if (surf) plt.surfPlot(npts, rho, fname);
             if (cube) plt.cubePlot(npts, rho, fname);
-            rho.free(NUMBER::Total);
+            rho.free();
             mrcpp::print::time(1, fname, t_lap);
         }
     }
