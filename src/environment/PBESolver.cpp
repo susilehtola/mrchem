@@ -62,7 +62,8 @@ void PBESolver::computePBTerm(mrcpp::CompFunction<3> &V_tot, const double salt_f
     auto sinh_f = [salt_factor](const double &V) { return (salt_factor / (4.0 * mrcpp::pi)) * std::sinh(V); };
     resetComplexFunction(pb_term);
     mrcpp::CompFunction<3> sinhV;
-    sinhV.alloc(NUMBER::Real);
+    sinhV.func_ptr->isreal = 1;
+    sinhV.alloc(0);
     mrcpp::map(this->apply_prec / 100, sinhV.real(), V_tot.real(), sinh_f);
 
     mrcpp::multiply(pb_term, sinhV, this->kappa, this->apply_prec);
@@ -77,7 +78,8 @@ void PBESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunct
         auto C_pin = this->epsilon.getCavity_p();
         mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
         mrcpp::CompFunction<3> cplxfunc_prod;
-        mrcpp::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
+        mrcpp::FunctionTree<3, double>& Tree =  get_func(d_V, d);
+        mrcpp::multiply(cplxfunc_prod, Tree, d_cav, this->apply_prec, 1);
         // add result into out_gamma
         if (d == 0) {
             mrcpp::deep_copy(out_gamma, cplxfunc_prod);
@@ -85,7 +87,6 @@ void PBESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunct
             out_gamma.add(1.0, cplxfunc_prod);
         }
     }
-
     out_gamma.rescale(std::log((epsilon.getValueIn() / epsilon.getValueOut())) * (1.0 / (4.0 * mrcpp::pi)));
     mrcpp::clear(d_V, true);
 

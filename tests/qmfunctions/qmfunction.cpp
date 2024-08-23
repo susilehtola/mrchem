@@ -263,20 +263,20 @@ TEST_CASE("QMFunction", "[qmfunction]") {
         SECTION("into non-shared function") {
             mrcpp::CompFunction func_2;
             mrcpp::multiply(func_2, func_1, func_1, -1.0);
-            REQUIRE(func_2.integrate().real() == Approx(func_1.squaredNorm()));
+            REQUIRE(func_2.integrate().real() == Approx(func_1.getSquareNorm()));
             REQUIRE(func_2.integrate().imag() == Approx(0.0));
         }
         SECTION("into non-shared function conjugate") {
             mrcpp::CompFunction func_2;
             mrcpp::multiply(func_2, func_1, func_1, -1.0, false, false, true);
-            REQUIRE(func_2.integrate().real() == Approx(func_1.squaredNorm()));
+            REQUIRE(func_2.integrate().real() == Approx(func_1.getSquareNorm()));
             REQUIRE(func_2.integrate().imag() == Approx(0.0));
         }
 #ifdef MRCHEM_HAS_MPI
         SECTION("into shared function") {
             mrcpp::CompFunction func_2(0, true);
             mrcpp::multiply(func_2, func_1, func_1, -1.0, false, false, true);
-            REQUIRE(func_2.integrate().real() == Approx(func_1.squaredNorm()));
+            REQUIRE(func_2.integrate().real() == Approx(func_1.getSquareNorm()));
             REQUIRE(func_2.integrate().imag() == Approx(0.0));
         }
 #endif
@@ -290,13 +290,13 @@ TEST_CASE("QMFunction", "[qmfunction]") {
         SECTION("into non-shared function") {
             mrcpp::CompFunction func_2(0, false);;
             mrcpp::multiply(func_2, func_1, func_1, -1.0, true);
-            REQUIRE(func_2.integrate().real() == Approx(func_1.squaredNorm()));
+            REQUIRE(func_2.integrate().real() == Approx(func_1.getSquareNorm()));
             REQUIRE(func_2.integrate().imag() == Approx(0.0));
         }
         SECTION("into shared function") {
             mrcpp::CompFunction func_2(0, true);
             mrcpp::multiply(func_2, func_1, func_1, -1.0,true);
-            REQUIRE(func_2.integrate().real() == Approx(func_1.squaredNorm()));
+            REQUIRE(func_2.integrate().real() == Approx(func_1.getSquareNorm()));
             REQUIRE(func_2.integrate().imag() == Approx(0.0));
         }
     }
