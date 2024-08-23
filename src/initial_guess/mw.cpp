@@ -110,7 +110,7 @@ bool initial_guess::mw::project_mo(OrbitalVector &Phi, double prec, const std::s
 
             Orbital phi_i;
             orbital::loadOrbital(orbname.str(), phi_i);
-            if (phi_i.squaredNorm() < 0.0) {
+            if (phi_i.getSquareNorm() < 0.0) {
                 MSG_ERROR("Guess orbital not found: " << orbname.str());
                 success &= false;
             }

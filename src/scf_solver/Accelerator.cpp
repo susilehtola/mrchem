@@ -165,7 +165,7 @@ bool Accelerator::verifyOverlap(OrbitalVector &Phi) {
             if (mrcpp::mpi::my_func(phi_i)) {
                 auto &last_i = this->orbitals[nHistory][i];
                 if (not mrcpp::mpi::my_func(last_i)) MSG_ABORT("MPI rank mismatch");
-                auto sqNorm = phi_i.squaredNorm();
+                auto sqNorm = phi_i.getSquareNorm();
                 auto overlap = orbital::dot(phi_i, last_i);
                 if (std::abs(overlap) < 0.5 * sqNorm) {
                     mrcpp::print::value(this->pl + 2, "Overlap not verified ", std::abs(overlap));

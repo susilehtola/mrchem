@@ -60,7 +60,7 @@ GPESolver::GPESolver(const Permittivity &e, const Density &rho_nuc, PoissonOpera
         , poisson(P) {}
 
 GPESolver::~GPESolver() {
-    this->rho_nuc.free(NUMBER::Real);
+    this->rho_nuc.free();
     clear();
 }
 
@@ -95,7 +95,6 @@ void GPESolver::computeDensities(const Density &rho_el, Density &rho_out) {
 }
 
 void GPESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunction<3> &out_gamma) {
-
     auto d_V = mrcpp::gradient(*derivative, potential.real()); // FunctionTreeVector
     resetComplexFunction(out_gamma);
 
@@ -103,7 +102,9 @@ void GPESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunct
         auto C_pin = this->epsilon.getCavity_p();
         mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
         mrcpp::CompFunction<3> cplxfunc_prod;
-        mrcpp::multiply(cplxfunc_prod, get_func(d_V, d), d_cav, this->apply_prec, 1);
+
+        mrcpp::FunctionTree<3, double>& Tree =  get_func(d_V, d);
+        mrcpp::multiply(cplxfunc_prod, Tree, d_cav, this->apply_prec, 1);
         // add result into out_gamma
         if (d == 0) {
             mrcpp::deep_copy(out_gamma, cplxfunc_prod);
@@ -121,7 +122,8 @@ mrcpp::CompFunction<3> GPESolver::solvePoissonEquation(const mrcpp::CompFunction
     mrcpp::CompFunction<3> rho_eff;
     mrcpp::CompFunction<3> first_term;
     mrcpp::CompFunction<3> Vr_np1;
-    Vr_np1.alloc(NUMBER::Real);
+    Vr_np1.func_ptr->isreal = 1;
+    Vr_np1.alloc(0);
 
     auto eps_inv_func = mrcpp::AnalyticFunction<3>([this](const mrcpp::Coord<3> &r) { return 1.0 / this->epsilon.evalf(r); });
     Density rho_tot(false);
@@ -130,7 +132,7 @@ mrcpp::CompFunction<3> GPESolver::solvePoissonEquation(const mrcpp::CompFunction
     mrcpp::multiply(first_term, rho_tot, eps_inv_func, this->apply_prec);
 
     mrcpp::add(rho_eff, 1.0, first_term, -1.0, rho_tot, -1.0);
-    rho_tot.free(NUMBER::Real);
+    rho_tot.free();
 
     mrcpp::add(Poisson_func, 1.0, in_gamma, 1.0, rho_eff, -1.0);
     mrcpp::apply(this->apply_prec, Vr_np1.real(), *poisson, Poisson_func.real());
@@ -183,14 +185,14 @@ void GPESolver::runMicroIterations(const mrcpp::CompFunction<3> &V_vac, const De
 
         if (iter > 1 and this->history > 0) {
             accelerateConvergence(dVr_n, Vr_n, kain);
-            Vr_np1.free(NUMBER::Real);
+            Vr_np1.free();
             mrcpp::add(Vr_np1, 1.0, Vr_n, 1.0, dVr_n, -1.0);
         }
 
         // set up for next iteration
         resetComplexFunction(this->Vr_n);
         mrcpp::deep_copy(this->Vr_n, Vr_np1);
-        Vr_np1.free(NUMBER::Real);
+        Vr_np1.free();
 
         printConvergenceRow(iter, norm, update, t_iter.elapsed());
 
@@ -235,19 +237,23 @@ mrcpp::CompFunction<3> &GPESolver::solveEquation(double prec, const Density &rho
     computeDensities(rho_el, rho_tot);
     Timer t_vac;
     mrcpp::CompFunction<3> V_vac;
-    V_vac.alloc(NUMBER::Real);
+    V_vac.func_ptr->isreal = 1;
+    V_vac.alloc(0);
     mrcpp::apply(this->apply_prec, V_vac.real(), *poisson, rho_tot.real());
-    rho_tot.free(NUMBER::Real);
+    rho_tot.free();
     print_utils::qmfunction(3, "Vacuum potential", V_vac, t_vac);
 
     // set up the zero-th iteration potential and gamma, so the first iteration gamma and potentials can be made
 
     Timer t_gamma;
-    if (not this->Vr_n.hasReal()) {
-        mrcpp::CompFunction<3> gamma_0;
-        mrcpp::CompFunction<3> V_tot;
-        computeGamma(V_vac, gamma_0);
-        this->Vr_n = solvePoissonEquation(gamma_0, rho_el);
+    if (Vr_n.Ncomp() == 0) {
+         mrcpp::CompFunction<3> gamma_0;
+         mrcpp::CompFunction<3> V_tot;
+         gamma_0.func_ptr->isreal = 1;
+         gamma_0.alloc(0);
+
+         computeGamma(V_vac, gamma_0);
+         this->Vr_n = solvePoissonEquation(gamma_0, rho_el);
     }
 
     // update the potential/gamma before doing anything with them
@@ -265,6 +271,8 @@ auto GPESolver::computeEnergies(const Density &rho_el) -> std::tuple<double, dou
 }
 
 void GPESolver::resetComplexFunction(mrcpp::CompFunction<3> &function) {
+    function.func_ptr->isreal = 1;
+    function.func_ptr->iscomplex = 0;
     function.alloc(0);
 }
 

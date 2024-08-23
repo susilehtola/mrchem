@@ -500,7 +500,7 @@ void orbital::normalize(OrbitalVector &Phi) {
 /** @brief In place orthogonalize against inp. Private function. */
 void orbital::orthogonalize(double prec, Orbital &&phi, Orbital psi) {
     ComplexDouble overlap = orbital::dot(psi, phi);
-    double sq_norm = psi.squaredNorm();
+    double sq_norm = psi.getSquareNorm();
     if (std::abs(overlap) > prec) phi.add(-1.0 * overlap / sq_norm, psi);
 }
 
@@ -1016,7 +1016,7 @@ DoubleVector orbital::get_squared_norms(const OrbitalVector &Phi) {
     int nOrbs = Phi.size();
     DoubleVector norms = DoubleVector::Zero(nOrbs);
     for (int i = 0; i < nOrbs; i++) {
-        if (mrcpp::mpi::my_func(Phi[i])) norms(i) = Phi[i].squaredNorm();
+        if (mrcpp::mpi::my_func(Phi[i])) norms(i) = Phi[i].getSquareNorm();
     }
     mrcpp::mpi::allreduce_vector(norms, mrcpp::mpi::comm_wrk);
     return norms;
