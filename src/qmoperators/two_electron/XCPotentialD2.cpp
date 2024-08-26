@@ -75,7 +75,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD2::setupDensities(double prec, mrcpp::F
             Timer timer;
             Density &rho = getDensity(DensityType::Total, 0);
             if (rho.Ncomp() == 0) {
-                rho.alloc(0);
+                rho.alloc(1);
                 mrcpp::copy_grid(rho.real(), grid);
                 density::compute(prec, rho, *orbitals, DensityType::Total);
             }
@@ -86,7 +86,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD2::setupDensities(double prec, mrcpp::F
             Timer timer;
             Density &rho = getDensity(DensityType::Total, 1);
             if (rho.Ncomp() == 0) {
-                rho.alloc(0);
+                rho.alloc(1);
                 mrcpp::copy_grid(rho.real(), grid);
                 density::compute(prec, rho, *orbitals, *orbitals_x, *orbitals_y, DensityType::Total);
             }
@@ -98,7 +98,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD2::setupDensities(double prec, mrcpp::F
             Timer timer;
             Density &rho = getDensity(DensityType::Alpha, 0);
             if (rho.Ncomp() == 0) {
-                rho.alloc(0);
+                rho.alloc(1);
                 mrcpp::copy_grid(rho.real(), grid);
                 density::compute(prec, rho, *orbitals, DensityType::Alpha);
             }
@@ -109,7 +109,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD2::setupDensities(double prec, mrcpp::F
             Timer timer;
             Density &rho = getDensity(DensityType::Beta, 0);
             if (rho.Ncomp() == 0) {
-                rho.alloc(0);
+                rho.alloc(1);
                 mrcpp::copy_grid(rho.real(), grid);
                 density::compute(prec, rho, *orbitals, DensityType::Beta);
             }
@@ -120,7 +120,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD2::setupDensities(double prec, mrcpp::F
             Timer timer;
             Density &rho = getDensity(DensityType::Alpha, 1);
             if (rho.Ncomp() == 0) {
-                rho.alloc(0);
+                rho.alloc(1);
                 mrcpp::copy_grid(rho.real(), grid);
                 density::compute(prec, rho, *orbitals, *orbitals_x, *orbitals_y, DensityType::Alpha);
             }
@@ -131,7 +131,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD2::setupDensities(double prec, mrcpp::F
             Timer timer;
             Density &rho = getDensity(DensityType::Beta, 1);
             if (rho.Ncomp() == 0) {
-                rho.alloc(0);
+                rho.alloc(1);
                 mrcpp::copy_grid(rho.real(), grid);
                 density::compute(prec, rho, *orbitals, *orbitals_x, *orbitals_y, DensityType::Beta);
             }

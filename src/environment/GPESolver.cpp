@@ -123,7 +123,7 @@ mrcpp::CompFunction<3> GPESolver::solvePoissonEquation(const mrcpp::CompFunction
     mrcpp::CompFunction<3> first_term;
     mrcpp::CompFunction<3> Vr_np1;
     Vr_np1.func_ptr->isreal = 1;
-    Vr_np1.alloc(0);
+    Vr_np1.alloc(1);
 
     auto eps_inv_func = mrcpp::AnalyticFunction<3>([this](const mrcpp::Coord<3> &r) { return 1.0 / this->epsilon.evalf(r); });
     Density rho_tot(false);
@@ -238,7 +238,7 @@ mrcpp::CompFunction<3> &GPESolver::solveEquation(double prec, const Density &rho
     Timer t_vac;
     mrcpp::CompFunction<3> V_vac;
     V_vac.func_ptr->isreal = 1;
-    V_vac.alloc(0);
+    V_vac.alloc(1);
     mrcpp::apply(this->apply_prec, V_vac.real(), *poisson, rho_tot.real());
     rho_tot.free();
     print_utils::qmfunction(3, "Vacuum potential", V_vac, t_vac);
@@ -250,7 +250,7 @@ mrcpp::CompFunction<3> &GPESolver::solveEquation(double prec, const Density &rho
          mrcpp::CompFunction<3> gamma_0;
          mrcpp::CompFunction<3> V_tot;
          gamma_0.func_ptr->isreal = 1;
-         gamma_0.alloc(0);
+         gamma_0.alloc(1);
 
          computeGamma(V_vac, gamma_0);
          this->Vr_n = solvePoissonEquation(gamma_0, rho_el);
@@ -273,7 +273,7 @@ auto GPESolver::computeEnergies(const Density &rho_el) -> std::tuple<double, dou
 void GPESolver::resetComplexFunction(mrcpp::CompFunction<3> &function) {
     function.func_ptr->isreal = 1;
     function.func_ptr->iscomplex = 0;
-    function.alloc(0);
+    function.alloc(1);
 }
 
 void GPESolver::printParameters() const {

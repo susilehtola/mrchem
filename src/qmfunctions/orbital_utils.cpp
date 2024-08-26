@@ -1236,7 +1236,7 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
-        orb.alloc(0);
+        orb.alloc(1);
         orb.CompD[0]->loadTree(fname.str());
     }
 
@@ -1244,7 +1244,7 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     if (orb.iscomplex()) {
         std::stringstream fname;
         fname << file << "_complex";
-        orb.alloc(0);
+        orb.alloc(1);
         orb.CompC[0]->loadTree(fname.str());
     }
     delete mra;

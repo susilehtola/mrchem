@@ -111,7 +111,7 @@ void Density::loadDensity(const std::string &file) {
     if (isreal()) {
         std::stringstream fname;
         fname << file << "_re";
-        alloc(0);
+        alloc(1);
         CompD[0]->loadTree(fname.str());
     }
 
@@ -119,7 +119,7 @@ void Density::loadDensity(const std::string &file) {
     if (iscomplex()) {
         std::stringstream fname;
         fname << file << "_cx";
-        alloc(0);
+        alloc(1);
         CompC[0]->loadTree(fname.str());
     }
 }
