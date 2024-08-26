@@ -249,7 +249,7 @@ void initial_guess::sad::project_atomic_densities(double prec, Density &rho_tot,
 
     Timer t_tot;
     Density rho_loc(false);
-    rho_loc.alloc();
+    rho_loc.alloc(1);
     rho_loc.real().setZero();
 
     Timer t_loc;

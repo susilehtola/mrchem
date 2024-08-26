@@ -154,7 +154,7 @@ void density::compute_local_X(double prec, Density &rho, OrbitalVector &Phi, Orb
     double add_prec = prec / N_el; // prec for rho = sum_i rho_i
     if (Phi.size() != X.size()) MSG_ERROR("Size mismatch");
 
-    if (rho.Ncomp() == 0) rho.alloc(0);
+    if (rho.Ncomp() == 0) rho.alloc(1);
 
     // Compute local density from own orbitals
     for (int i = 0; i < Phi.size(); i++) {
@@ -179,7 +179,7 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
     if (Phi.size() != X.size()) MSG_ERROR("Size mismatch");
     if (Phi.size() != Y.size()) MSG_ERROR("Size mismatch");
 
-    if (rho.Ncomp() == 0) rho.alloc(0);
+    if (rho.Ncomp() == 0) rho.alloc(1);
 
     // Compute local density from own orbitals
     rho.real().setZero();
@@ -205,7 +205,7 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
 }
 
 void density::compute(double prec, Density &rho, mrcpp::GaussExp<3> &dens_exp) {
-    if (not rho.hasReal()) rho.alloc(NUMBER::Real);
+    if (not rho.hasReal()) rho.alloc(1);
     mrcpp::build_grid(rho.real(), dens_exp);
     mrcpp::project(prec, rho.real(), dens_exp);
 }
@@ -228,7 +228,7 @@ void density::allreduce_density(double prec, Density &rho_tot, Density &rho_loc)
         if (mrcpp::mpi::numerically_exact) rho_loc.crop(prec);
     }
 
-    if (not rho_tot.hasReal()) rho_tot.alloc(NUMBER::Real);
+    if (not rho_tot.hasReal()) rho_tot.alloc(1);
 
     if (rho_tot.isShared()) {
         int tag = 2002;
