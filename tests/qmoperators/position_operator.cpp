@@ -63,7 +63,7 @@ TEST_CASE("PositionOperator", "[position_operator]") {
     r.setup(prec);
     SECTION("vector apply") {
         OrbitalVector xPhi = r[0](Phi);
-        ComplexMatrix X = orbital::calc_overlap_matrix(Phi, xPhi);
+        ComplexMatrix X = mrcpp::calc_overlap_matrix(Phi, xPhi);
         for (int i = 0; i < X.rows(); i++) {
             for (int j = 0; j < X.cols(); j++) { REQUIRE(std::abs(X(i, j).real() - ref(i, j)) < thrs); }
         }

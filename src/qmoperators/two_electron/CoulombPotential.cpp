@@ -126,7 +126,7 @@ void CoulombPotential::setupGlobalPotential(double prec) {
     bool need_to_apply = not(V.isShared()) or mrcpp::mpi::share_master();
 
     Timer timer;
-    V.alloc(0);
+    V.alloc(1);
     if (need_to_apply) mrcpp::apply(abs_prec, V.real(), P, rho.real());
     mrcpp::mpi::share_function(V, 0, 22445, mrcpp::mpi::comm_share);
     print_utils::qmfunction(3, "Compute global potential", V, timer);
@@ -151,7 +151,7 @@ mrcpp::CompFunction<3> CoulombPotential::setupLocalPotential(double prec) {
 
     Timer timer;
     mrcpp::CompFunction<3> V(false);
-    V.alloc(0);
+    V.alloc(1);
     mrcpp::apply(abs_prec, V.real(), P, rho.real());
     print_utils::qmfunction(3, "Compute local potential", V, timer);
 
@@ -169,7 +169,7 @@ void CoulombPotential::allreducePotential(double prec, mrcpp::CompFunction<3> &V
     // Add up local contributions into the grand master
     mrcpp::mpi::reduce_function(abs_prec, V_loc, mrcpp::mpi::comm_wrk);
 
-    if (not V_tot.hasReal()) V_tot.alloc(0);
+    if (not V_tot.hasReal()) V_tot.alloc(1);
     if (V_tot.isShared()) {
         int tag = 3141;
         // MPI grand master distributes to shared masters

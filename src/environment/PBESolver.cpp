@@ -63,7 +63,7 @@ void PBESolver::computePBTerm(mrcpp::CompFunction<3> &V_tot, const double salt_f
     resetComplexFunction(pb_term);
     mrcpp::CompFunction<3> sinhV;
     sinhV.func_ptr->isreal = 1;
-    sinhV.alloc(0);
+    sinhV.alloc(1);
     mrcpp::map(this->apply_prec / 100, sinhV.real(), V_tot.real(), sinh_f);
 
     mrcpp::multiply(pb_term, sinhV, this->kappa, this->apply_prec);

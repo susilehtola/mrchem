@@ -97,13 +97,13 @@ QMOperatorVector QMDerivative::apply(QMOperator_p &O) {
         // does not compile?       mrcpp::apply(V_out_base, D, V_inp, d);
         if (this->isReal()) {
             if (V_inp->isreal()) {
-                V_out->alloc(0);
+                V_out->alloc(1);
                 mrcpp::apply(V_out->real(), D, V_inp->real(), d);
             }
             if (V_inp->iscomplex()) {
                 V_out->func_ptr->isreal = 0;
                 V_out->func_ptr->iscomplex = 1;
-                V_out->alloc(0);
+                V_out->alloc(1);
                 mrcpp::apply(V_out->complex(), D, V_inp->complex(), d);
                 //if (V_inp->conjugate()) V_out->imag().rescale(-1.0);
             }
@@ -111,7 +111,7 @@ QMOperatorVector QMDerivative::apply(QMOperator_p &O) {
             if (V_inp->iscomplex()) {
                 V_out->func_ptr->isreal = 0;
                 V_out->func_ptr->iscomplex = 1;
-                V_out->alloc(0);
+                V_out->alloc(1);
                mrcpp::apply(V_out->complex(), D, V_inp->complex(), d);
                if (!V_inp->conjugate()) V_out->CompC[0]->rescale({0.0, 1.0});
             }
