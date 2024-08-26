@@ -68,80 +68,6 @@ OrbitalData getOrbitalData(const Orbital &orb) {
  * Orbital related standalone functions *
  ****************************************/
 
-/** @brief Compute <bra|ket> = int bra^\dag(r) * ket(r) dr.
- *
- *  Notice that the <bra| position is already complex conjugated.
- *  Alpha spin is orthogonal to beta spin, but paired orbitals are
- *  not necessarily orthogonal to alpha/beta orbitals.
- *
- */
-ComplexDouble orbital::dot(Orbital bra, Orbital ket) {
-    if ((bra.spin() == SPIN::Alpha) and (ket.spin() == SPIN::Beta)) return 0.0;
-    if ((bra.spin() == SPIN::Beta) and (ket.spin() == SPIN::Alpha)) return 0.0;
-    return mrcpp::dot(bra, ket);
-}
-
-
-/** @brief Compute <bra|ket> = int bra^\dag(r) * ket(r) dr.
- *
- *  Notice that the <bra| position is already complex conjugated.
- *  Alpha spin is orthogonal to beta spin, but paired orbitals are
- *  not necessarily orthogonal to alpha/beta orbitals.
- *
- */
-ComplexDouble orbital::dot(mrcpp::CompFunction<3> bra, mrcpp::CompFunction<3>ket) {
-    if ((bra.data().n1[0] == SPIN::Alpha) and (ket.data().n1[0] == SPIN::Beta)) return 0.0;
-    if ((bra.data().n1[0] == SPIN::Beta) and (ket.data().n1[0] == SPIN::Alpha)) return 0.0;
-    return mrcpp::dot(bra, ket);
-}
-
-/** @brief Compute the diagonal dot products <bra_i|ket_i>
- *
- * MPI: dot product is computed by the ket owner and the corresponding
- *      bra is communicated. The resulting vector is allreduced, and
- *      the foreign bra's are cleared.
- *
- */
-ComplexVector orbital::dot(OrbitalVector &Bra, OrbitalVector &Ket) {
-    if (Bra.size() != Ket.size()) MSG_ABORT("Size mismatch");
-
-    int N = Bra.size();
-    ComplexVector result = ComplexVector::Zero(N);
-    for (int i = 0; i < N; i++) {
-        // The bra is sent to the owner of the ket
-        if (mrcpp::mpi::my_func(Bra[i]) != mrcpp::mpi::my_func(Ket[i])) {
-            int tag = 8765 + i;
-            int src = (Bra[i].getRank()) % mrcpp::mpi::wrk_size;
-            int dst = (Ket[i].getRank()) % mrcpp::mpi::wrk_size;
-            if (mrcpp::mpi::my_func(Bra[i])) mrcpp::mpi::send_function(Bra[i], dst, tag, mrcpp::mpi::comm_wrk);
-            if (mrcpp::mpi::my_func(Ket[i])) mrcpp::mpi::recv_function(Bra[i], src, tag, mrcpp::mpi::comm_wrk);
-        }
-        result[i] = orbital::dot(Bra[i], Ket[i]);
-        if (not mrcpp::mpi::my_func(Bra[i])) Bra[i].free();
-    }
-    mrcpp::mpi::allreduce_vector(result, mrcpp::mpi::comm_wrk);
-    return result;
-}
-
-/** @brief Compute <bra|ket> = int |bra^\dag(r)| * |ket(r)| dr.
- *
- */
-double orbital::node_norm_dot(Orbital bra, Orbital ket) {
-    if ((bra.spin() == SPIN::Alpha) and (ket.spin() == SPIN::Beta)) return 0.0;
-    if ((bra.spin() == SPIN::Beta) and (ket.spin() == SPIN::Alpha)) return 0.0;
-    return mrcpp::node_norm_dot(bra, ket);
-}
-
-
-/** @brief Compute <bra|ket> = int |bra^\dag(r)| * |ket(r)| dr.
- *
-
-double orbital::node_norm_dot(mrcpp::CompFunction<3> bra, mrcpp::CompFunction<3> ket, bool exact) {
-    if ((bra.spin() == SPIN::Alpha) and (ket.spin() == SPIN::Beta)) return 0.0;
-    if ((bra.spin() == SPIN::Beta) and (ket.spin() == SPIN::Alpha)) return 0.0;
-    return mrcpp::node_norm_dot(bra, ket, exact);
-}*/
-
 /** @brief Compare spin and occupation of two orbitals
  *
  *  Returns true if orbital parameters are the same.
@@ -499,7 +425,7 @@ void orbital::normalize(OrbitalVector &Phi) {
 
 /** @brief In place orthogonalize against inp. Private function. */
 void orbital::orthogonalize(double prec, Orbital &&phi, Orbital psi) {
-    ComplexDouble overlap = orbital::dot(psi, phi);
+    ComplexDouble overlap = mrcpp::dot(psi, phi);
     double sq_norm = psi.getSquareNorm();
     if (std::abs(overlap) > prec) phi.add(-1.0 * overlap / sq_norm, psi);
 }

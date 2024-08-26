@@ -33,13 +33,13 @@ using namespace mrchem;
 
 namespace orbital_tests {
 
-auto f = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-1.0 * R * R);
 };
 
 ComplexDouble i1 = {0.0, 1.0};
-auto g = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> g = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-2.0 * R * R);
 };
@@ -50,7 +50,7 @@ TEST_CASE("Orbital", "[orbital]") {
 
     SECTION("copy orbital") {
         Orbital phi_1(SPIN::Paired);
-        mrcpp::project(phi_1, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        mrcpp::project(phi_1, f, prec);
 
         SECTION("copy constructor") {
             Orbital phi_2(phi_1);
@@ -104,7 +104,7 @@ TEST_CASE("Orbital", "[orbital]") {
         Orbital phi(SPIN::Paired);
         REQUIRE(phi.norm() == Approx(0.0));
 
-        mrcpp::project(phi, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        mrcpp::project(phi, f, prec);
         REQUIRE(phi.norm() > 0.8);
 
         orbital::normalize(phi);
@@ -113,14 +113,14 @@ TEST_CASE("Orbital", "[orbital]") {
 
     SECTION("orthogonalize") {
         Orbital phi_1(SPIN::Alpha);
-        mrcpp::project(phi_1, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+        mrcpp::project(phi_1, f, prec);
 
         WHEN("orbitals have different spins") {
             Orbital phi_2(SPIN::Beta);
-            mrcpp::project(phi_2, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(g), prec);
+            mrcpp::project(phi_2, g, prec);
 
             THEN("their overlap is zero") {
-                ComplexDouble S = orbital::dot(phi_1, phi_2);
+                ComplexDouble S = mrcpp::dot(phi_1, phi_2);
                 REQUIRE(std::abs(S.real()) < thrs);
                 REQUIRE(std::abs(S.imag()) < thrs);
             }
@@ -128,10 +128,10 @@ TEST_CASE("Orbital", "[orbital]") {
 
         WHEN("orbitals have the same spin") {
             Orbital phi_2(SPIN::Alpha);
-            mrcpp::project(phi_2, static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f), prec);
+            mrcpp::project(phi_2, f, prec);
 
             THEN("their overlap is non-zero") {
-                ComplexDouble S1 = orbital::dot(phi_1, phi_2);
+                ComplexDouble S1 = mrcpp::dot(phi_1, phi_2);
                 REQUIRE(std::abs(S1.real()) > thrs);
                 REQUIRE(std::abs(S1.imag()) < thrs);
             }
@@ -140,7 +140,7 @@ TEST_CASE("Orbital", "[orbital]") {
                 mrcpp::orthogonalize(prec, phi_2, phi_1);
 
                 THEN("their overlap is zero") {
-                    ComplexDouble S3 = orbital::dot(phi_1, phi_2);
+                    ComplexDouble S3 = mrcpp::dot(phi_1, phi_2);
                     REQUIRE(std::abs(S3.real()) < thrs);
                     REQUIRE(std::abs(S3.imag()) < thrs);
                 }

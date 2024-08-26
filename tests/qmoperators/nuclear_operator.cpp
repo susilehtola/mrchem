@@ -90,7 +90,7 @@ TEST_CASE("PointNucleusHFYGB", "[nuclear_operator]") {
     V.setup(prec);
     SECTION("apply") {
         Orbital Vphi_0 = V(Phi[0]);
-        ComplexDouble V_00 = orbital::dot(static_cast<Orbital>(Phi[0]), Vphi_0);
+        ComplexDouble V_00 = mrcpp::dot(Phi[0], Vphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(V_00.real() == Approx(E_P(0)).epsilon(prec));
             REQUIRE(V_00.imag() < thrs);
@@ -102,7 +102,7 @@ TEST_CASE("PointNucleusHFYGB", "[nuclear_operator]") {
     SECTION("vector apply") {
         OrbitalVector VPhi = V(Phi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble V_ii = orbital::dot(static_cast<Orbital>(Phi[i]), static_cast<Orbital>(VPhi[i]));
+            ComplexDouble V_ii = mrcpp::dot(Phi[i], VPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(V_ii.real() == Approx(E_P(i)).epsilon(prec));
                 REQUIRE(V_ii.imag() < thrs);
@@ -183,7 +183,7 @@ TEST_CASE("PointNucleusParabola", "[nuclear_operator]") {
     V.setup(prec);
     SECTION("apply") {
         Orbital Vphi_0 = V(Phi[0]);
-        ComplexDouble V_00 = orbital::dot(static_cast<Orbital>(Phi[0]), Vphi_0);
+        ComplexDouble V_00 = mrcpp::dot(Phi[0], Vphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(V_00.real() == Approx(E_P(0)).epsilon(prec));
             REQUIRE(V_00.imag() < thrs);
@@ -195,7 +195,7 @@ TEST_CASE("PointNucleusParabola", "[nuclear_operator]") {
     SECTION("vector apply") {
         OrbitalVector VPhi = V(Phi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble V_ii = orbital::dot(static_cast<Orbital>(Phi[i]), static_cast<Orbital>(VPhi[i]));
+            ComplexDouble V_ii = mrcpp::dot(Phi[i], VPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(V_ii.real() == Approx(E_P(i)).epsilon(prec));
                 REQUIRE(V_ii.imag() < thrs);
@@ -276,7 +276,7 @@ TEST_CASE("PointNucleusMinimum", "[nuclear_operator]") {
     V.setup(prec);
     SECTION("apply") {
         Orbital Vphi_0 = V(Phi[0]);
-        ComplexDouble V_00 = orbital::dot(static_cast<Orbital>(Phi[0]), Vphi_0);
+        ComplexDouble V_00 = mrcpp::dot(Phi[0], Vphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(V_00.real() == Approx(E_P(0)).epsilon(prec));
             REQUIRE(V_00.imag() < thrs);
@@ -288,7 +288,7 @@ TEST_CASE("PointNucleusMinimum", "[nuclear_operator]") {
     SECTION("vector apply") {
         OrbitalVector VPhi = V(Phi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble V_ii = orbital::dot(static_cast<Orbital>(Phi[i]), static_cast<Orbital>(VPhi[i]));
+            ComplexDouble V_ii = mrcpp::dot(Phi[i], VPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(V_ii.real() == Approx(E_P(i)).epsilon(prec));
                 REQUIRE(V_ii.imag() < thrs);

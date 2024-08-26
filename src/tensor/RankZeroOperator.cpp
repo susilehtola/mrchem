@@ -243,7 +243,7 @@ ComplexDouble RankZeroOperator::dagger(const mrcpp::Coord<3> &r) const {
  * NB: the result is put at the same location as the input (out and inp trees are the same tree)
  */
 Orbital RankZeroOperator::operator()(Orbital inp) {
-    if (inp.getNNodes() == 0) return inp.paramCopy();
+    if (inp.getNNodes() == 0) return inp.paramCopy(false);
 
     RankZeroOperator &O = *this;
     std::vector<mrcpp::CompFunction<3>> func_vec;
@@ -252,7 +252,7 @@ Orbital RankZeroOperator::operator()(Orbital inp) {
         Orbital out_n = O.applyOperTerm(n, inp);
         func_vec.push_back(out_n);
     }
-    Orbital out = inp.paramCopy();
+    Orbital out = inp.paramCopy(true);
     mrcpp::linear_combination(out, coef_vec, func_vec, -1.0);
     return out;
 }
@@ -264,7 +264,7 @@ Orbital RankZeroOperator::operator()(Orbital inp) {
  * NOT IMPLEMENTED
  */
 Orbital RankZeroOperator::dagger(Orbital inp) {
-    if (inp.getNNodes() == 0) return inp.paramCopy();
+    if (inp.getNNodes() == 0) return inp.paramCopy(false);
 
     RankZeroOperator &O = *this;
     std::vector<mrcpp::CompFunction<3>> func_vec;
@@ -273,7 +273,7 @@ Orbital RankZeroOperator::dagger(Orbital inp) {
         Orbital out_n = O.daggerOperTerm(n, inp);
         func_vec.push_back(out_n);
     }
-    Orbital out = inp.paramCopy();
+    Orbital out = inp.paramCopy(true);
     mrcpp::linear_combination(out, coef_vec, func_vec, -1.0);
     return out;
 }
@@ -290,7 +290,12 @@ OrbitalVector RankZeroOperator::operator()(OrbitalVector &inp) {
     OrbitalVector out;
     for (auto i = 0; i < inp.size(); i++) {
         Timer t1;
-        Orbital out_i = O(inp[i]);
+        Orbital out_i;
+        if (mrcpp::mpi::my_func(inp[i])) {
+            out_i = O(inp[i]);
+        } else {
+            out_i = inp[i].paramCopy(false);
+        }
         out.push_back(out_i);
         std::stringstream o_name;
         o_name << O.name() << "|" << i << ">";
@@ -310,7 +315,12 @@ OrbitalVector RankZeroOperator::dagger(OrbitalVector &inp) {
     OrbitalVector out;
     for (auto i = 0; i < inp.size(); i++) {
         Timer t1;
-        Orbital out_i = O.dagger(inp[i]);
+        Orbital out_i;
+        if (mrcpp::mpi::my_func(inp[i])) {
+            out_i = O.dagger(inp[i]);
+        } else {
+            out_i = inp[i].paramCopy(false);
+        }
         out.push_back(out_i);
         std::stringstream o_name;
         o_name << O.name() << "^dagger|" << i << ">";
@@ -331,7 +341,7 @@ OrbitalVector RankZeroOperator::dagger(OrbitalVector &inp) {
 ComplexDouble RankZeroOperator::operator()(Orbital bra, Orbital ket) {
     RankZeroOperator &O = *this;
     Orbital Oket = O(ket);
-    ComplexDouble out = orbital::dot(bra, Oket);
+    ComplexDouble out = mrcpp::dot(bra, Oket);
     return out;
 }
 
@@ -345,7 +355,7 @@ ComplexDouble RankZeroOperator::operator()(Orbital bra, Orbital ket) {
 ComplexDouble RankZeroOperator::dagger(Orbital bra, Orbital ket) {
     RankZeroOperator &O = *this;
     Orbital Oket = O.dagger(ket);
-    ComplexDouble out = orbital::dot(bra, Oket);
+    ComplexDouble out = mrcpp::dot(bra, Oket);
     return out;
 }
 
@@ -403,7 +413,7 @@ ComplexDouble RankZeroOperator::trace(OrbitalVector &Phi) {
     OrbitalVector OPhi = O(Phi);
     std::vector<ComplexDouble> eta(Phi.size());
     std::vector<ComplexDouble> phi_vec(Phi.size());
-    auto phiOPhi = orbital::dot(Phi, OPhi);
+    auto phiOPhi = mrcpp::dot(Phi, OPhi);
     ComplexDouble out = 0.0;
     for (int i=0; i<Phi.size(); i++){
         eta[i] = Phi[i].occ();
@@ -438,13 +448,13 @@ ComplexDouble RankZeroOperator::trace(OrbitalVector &Phi, OrbitalVector &X, Orbi
     OrbitalVector OPhi = O(Phi);
     auto y_nodes = orbital::get_n_nodes(OPhi);
     auto y_size = orbital::get_size_nodes(OPhi);
-    auto y_vec = orbital::dot(Y, OPhi);
+    auto y_vec = mrcpp::dot(Y, OPhi);
     OPhi.clear();
 
     OrbitalVector OX = O(X);
     auto x_nodes = orbital::get_n_nodes(OX);
     auto x_size = orbital::get_size_nodes(OX);
-    auto x_vec = orbital::dot(Phi, OX);
+    auto x_vec = mrcpp::dot(Phi, OX);
     OX.clear();
 
     std::stringstream o_name;

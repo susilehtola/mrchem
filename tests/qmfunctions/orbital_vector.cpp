@@ -35,32 +35,32 @@ using namespace orbital;
 
 namespace orbital_vector_tests {
 
-auto f1 = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f1 = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-1.0 * R * R);
 };
 
-auto f2 = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f2 = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-2.0 * R * R);
 };
 
-auto f3 = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f3 = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-3.0 * R * R);
 };
 
-auto f4 = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f4 = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-4.0 * R * R);
 };
 
-auto f5 = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f5 = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-5.0 * R * R);
 };
 
-auto f6 = [](const mrcpp::Coord<3> &r) -> double {
+std::function<double(const mrcpp::Coord<3> &r)> f6 = [](const mrcpp::Coord<3> &r) -> double {
     double R = std::sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
     return std::exp(-6.0 * R * R);
 };
@@ -128,8 +128,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Paired));
         Phi.push_back(Orbital(SPIN::Alpha));
 
-        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
-        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f1, prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], f2, prec);
         normalize(Phi);
 
         SECTION("copy constructor") {
@@ -201,8 +201,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         REQUIRE(norms1[0] == Approx(0.0));
         REQUIRE(norms1[1] == Approx(0.0));
 
-        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
-        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
+        if (mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f1, prec);
+        if (mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], f2, prec);
 
         DoubleVector norms2 = get_norms(Phi);
         REQUIRE(norms2[0] > 0.0);
@@ -234,12 +234,13 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Beta));
         Phi.distribute();
 
-        if (true or mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f1), prec);
-        if (true or mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f2), prec);
-        if (true or mrcpp::mpi::my_func(Phi[2])) mrcpp::project(Phi[2], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f3), prec);
-        if (true or mrcpp::mpi::my_func(Phi[3])) mrcpp::project(Phi[3], static_cast<std::function<double(const mrcpp::Coord<3> &r)>>(f4), prec);
+        if (true or mrcpp::mpi::my_func(Phi[0])) mrcpp::project(Phi[0], f1, prec);
+        if (true or mrcpp::mpi::my_func(Phi[1])) mrcpp::project(Phi[1], f2, prec);
+        if (true or mrcpp::mpi::my_func(Phi[2])) mrcpp::project(Phi[2], f3, prec);
+        if (true or mrcpp::mpi::my_func(Phi[3])) mrcpp::project(Phi[3], f4, prec);
 
         // Complex phase rotation
+        // NB: Phi becomes complex
         for (int n = 0; n < Phi.size(); n++) {
             double theta = (n + 1.0) * mrcpp::pi / 7.0;
             ComplexDouble phase(std::cos(theta), std::sin(theta));
@@ -288,8 +289,8 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
             Psi.push_back(Orbital(SPIN::Alpha));
             Psi.push_back(Orbital(SPIN::Beta));
 
-            if (mrcpp::mpi::my_func(Psi[0])) mrcpp::project(Psi[0], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f5), prec);
-            if (mrcpp::mpi::my_func(Psi[1])) mrcpp::project(Psi[1], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f6), prec);
+            if (mrcpp::mpi::my_func(Psi[0])) mrcpp::project(Psi[0], f5, prec);
+            if (mrcpp::mpi::my_func(Psi[1])) mrcpp::project(Psi[1], f6, prec);
 
             orthogonalize(prec, Phi);
             orthogonalize(prec, Psi, Phi);
@@ -307,10 +308,9 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         Phi.push_back(Orbital(SPIN::Paired));
 
         if (mrcpp::mpi::my_func(Phi[0])) {
-            mrcpp::project(Phi[0], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f1), prec);
-            mrcpp::project(Phi[1], static_cast<std::function<ComplexDouble(const mrcpp::Coord<3> &r)>>(f2), prec);
+            mrcpp::project(Phi[0], f1, prec);
+            mrcpp::project(Phi[1], f2, prec);
         }
-
 
         orthogonalize(prec, Phi);
         normalize(Phi);
