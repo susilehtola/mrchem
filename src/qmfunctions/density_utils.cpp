@@ -157,14 +157,12 @@ void density::compute_local_X(double prec, Density &rho, OrbitalVector &Phi, Orb
     if (rho.Ncomp() == 0) rho.alloc(0);
 
     // Compute local density from own orbitals
-    rho.real().setZero();
     for (int i = 0; i < Phi.size(); i++) {
         if (mrcpp::mpi::my_func(Phi[i])) {
             if (not mrcpp::mpi::my_func(X[i])) MSG_ABORT("Inconsistent MPI distribution");
             Orbital phi_i = Phi[i];
             double occ = density::compute_occupation(phi_i, spin);
             if (std::abs(occ) < mrcpp::MachineZero) continue; // next orbital if this one is not occupied!
-
             Density rho_i(false);
             mrcpp::multiply(rho_i, phi_i, X[i], mult_prec);
             rho.add(2.0 * occ, rho_i);
@@ -177,8 +175,7 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
     int N_el = orbital::get_electron_number(Phi);
     double mult_prec = prec;       // prec for rho_i = |x_i><phi_i| + |phi_i><y_i|
     double add_prec = prec / N_el; // prec for rho = sum_i rho_i
-    std::cout<<"ERROR"<<std::endl;
-    MSG_ERROR(" NOT implemented");
+
     if (Phi.size() != X.size()) MSG_ERROR("Size mismatch");
     if (Phi.size() != Y.size()) MSG_ERROR("Size mismatch");
 
@@ -198,10 +195,8 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
             Density rho_x(false);
             Density rho_y(false);
             MSG_ERROR("Complex trees not yet included");
-            //            mrcpp::multiply(rho_x, X[i], Phi[i].dagger(), mult_prec);
-            //            mrcpp::multiply(rho_y, Phi[i], Y[i].dagger(), mult_prec);
-            mrcpp::multiply(rho_x, X[i], Phi[i], mult_prec);
-            mrcpp::multiply(rho_y, Phi[i], Y[i], mult_prec);
+            mrcpp::multiply(rho_x, Phi[i], X[i], mult_prec, false, false, true); //last true means complex conjugate of Phi[i]
+            mrcpp::multiply(rho_y, Y[i], Phi[i], mult_prec, false, false, true);//last true means complex conjugate of Y[i]
             rho.add(occ, rho_x);
             rho.add(occ, rho_y);
             rho.crop(add_prec);

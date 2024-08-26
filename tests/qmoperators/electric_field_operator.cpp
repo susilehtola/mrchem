@@ -91,11 +91,11 @@ TEST_CASE("ElectricFieldOperator", "[electric_field_operator]") {
         }
 
         Orbital phi_x = EF(Phi[0]);
-        ComplexDouble X_00 = orbital::dot(static_cast<Orbital>(Phi[0]), phi_x);
-        ComplexDouble X_10 = orbital::dot(static_cast<Orbital>(Phi[1]), phi_x);
-        ComplexDouble X_20 = orbital::dot(static_cast<Orbital>(Phi[2]), phi_x);
-        ComplexDouble X_30 = orbital::dot(static_cast<Orbital>(Phi[3]), phi_x);
-        ComplexDouble X_40 = orbital::dot(static_cast<Orbital>(Phi[4]), phi_x);
+        ComplexDouble X_00 = mrcpp::dot(Phi[0], phi_x);
+        ComplexDouble X_10 = mrcpp::dot(Phi[1], phi_x);
+        ComplexDouble X_20 = mrcpp::dot(Phi[2], phi_x);
+        ComplexDouble X_30 = mrcpp::dot(Phi[3], phi_x);
+        ComplexDouble X_40 = mrcpp::dot(Phi[4], phi_x);
         REQUIRE(X_00.real() == Approx(ref(0, 0)).margin(thrs));
         REQUIRE(X_10.real() == Approx(ref(0, 1)).margin(thrs));
         REQUIRE(X_20.real() == Approx(ref(0, 2)).margin(thrs));
@@ -114,7 +114,7 @@ TEST_CASE("ElectricFieldOperator", "[electric_field_operator]") {
         OrbitalVector xPhi = EF(Phi);
         for (int i = 0; i < Phi.size(); i++) {
             for (int j = 0; j < xPhi.size(); j++) {
-                ComplexDouble X_ij = orbital::dot(Phi[i], xPhi[j]);
+                ComplexDouble X_ij = mrcpp::dot(Phi[i], xPhi[j]);
                 REQUIRE(std::abs(X_ij.real()) == Approx(ref(i, j)).margin(thrs));
             }
         }

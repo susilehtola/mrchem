@@ -64,7 +64,7 @@ Orbital QMSpin::apply(Orbital inp) {
             MSG_ABORT("Cannot apply spin operator on paired orbital");
     }
 
-    Orbital out = inp.paramCopy();
+    Orbital out;
     mrcpp::deep_copy(out, inp);
     out.rescale(coef);
 

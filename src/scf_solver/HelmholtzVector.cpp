@@ -143,8 +143,7 @@ Orbital HelmholtzVector::apply(int i, const Orbital &phi) const {
     if (std::abs(mu_i.imag()) > mrcpp::MachineZero) MSG_ABORT("Mu cannot be complex");
     mrcpp::HelmholtzOperator H(*MRA, mu_i.real(), this->prec);
 
-    Orbital out = phi.paramCopy();
-    out.alloc(0);
+    Orbital out = phi.paramCopy(true);
     ComplexDouble metric[4][4];
     for (int i=0; i<4; i++){
         for (int j=0; j<4; j++){

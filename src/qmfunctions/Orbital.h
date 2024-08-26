@@ -69,7 +69,11 @@ public:
     void loadOrbital(const std::string &file);
 };
 
-//using OrbitalVector = mrcpp::CompFunctionVector<3>;
+// All MPI processes have a vector of full length, but
+// only "my_func" are fully defined.
+// The others orbitals (not my_func) have only basic data (spin etc) but no trees defined.
+// Vector of orbitals where all orbitals are defined for all MPI, should not have typoe
+// OrbitalVectors, but directly vector<Orbital>.
 class OrbitalVector : public mrcpp::CompFunctionVector {
 public:
     OrbitalVector(int N = 0) : mrcpp::CompFunctionVector(N) {}
