@@ -96,7 +96,7 @@ void ExchangePotentialD2::clearBank() {
 Orbital ExchangePotentialD2::apply(Orbital phi_p) {
     if (this->apply_prec < 0.0) {
         MSG_ERROR("Uninitialized operator");
-        return phi_p.paramCopy();
+        return phi_p.paramCopy(true);
     }
 
     Timer timer;
@@ -123,8 +123,8 @@ Orbital ExchangePotentialD2::apply(Orbital phi_p) {
 
         double spin_fac = getSpinFactor(phi_i, phi_p);
         if (std::abs(spin_fac) >= mrcpp::MachineZero) {
-            Orbital ex_xip = phi_p.paramCopy();
-            Orbital ex_iyp = phi_p.paramCopy();
+            Orbital ex_xip = phi_p.paramCopy(true);
+            Orbital ex_iyp = phi_p.paramCopy(true);
             calcExchange_kij(precf, x_i, phi_i, phi_p, ex_xip);
             calcExchange_kij(precf, phi_i, y_i, phi_p, ex_iyp);
             func_vec.push_back(ex_xip);
@@ -138,7 +138,7 @@ Orbital ExchangePotentialD2::apply(Orbital phi_p) {
     }
 
     // compute out_p = sum_i c_i*(ex_xip + ex_iyp)
-    Orbital out_p = phi_p.paramCopy();
+    Orbital out_p = phi_p.paramCopy(true);
     //Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
     mrcpp::linear_combination(out_p, coef_vec, func_vec, prec);
     print_utils::qmfunction(4, "Applied exchange", out_p, timer);
@@ -155,7 +155,7 @@ Orbital ExchangePotentialD2::apply(Orbital phi_p) {
 Orbital ExchangePotentialD2::dagger(Orbital phi_p) {
     if (this->apply_prec < 0.0) {
         MSG_ERROR("Uninitialized operator");
-        return phi_p.paramCopy();
+        return phi_p.paramCopy(true);
     }
 
     Timer timer;
@@ -182,8 +182,8 @@ Orbital ExchangePotentialD2::dagger(Orbital phi_p) {
 
         double spin_fac = getSpinFactor(phi_i, phi_p);
         if (std::abs(spin_fac) >= mrcpp::MachineZero) {
-            Orbital ex_ixp = phi_p.paramCopy();
-            Orbital ex_yip = phi_p.paramCopy();
+            Orbital ex_ixp = phi_p.paramCopy(true);
+            Orbital ex_yip = phi_p.paramCopy(true);
             calcExchange_kij(precf, phi_i, x_i, phi_p, ex_ixp);
             calcExchange_kij(precf, y_i, phi_i, phi_p, ex_yip);
             func_vec.push_back(ex_ixp);
@@ -197,7 +197,7 @@ Orbital ExchangePotentialD2::dagger(Orbital phi_p) {
     }
 
     // compute ex_p = sum_i c_i*(ex_ixp + ex_yip)
-    Orbital ex_p = phi_p.paramCopy();
+    Orbital ex_p = phi_p.paramCopy(true);
     //Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
     mrcpp::linear_combination(ex_p, coef_vec, func_vec, prec);
     print_utils::qmfunction(4, "Applied exchange", ex_p, timer);

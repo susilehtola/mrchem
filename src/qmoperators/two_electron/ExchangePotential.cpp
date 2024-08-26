@@ -170,7 +170,7 @@ void ExchangePotential::calcExchange_kij(double prec, Orbital phi_k, Orbital phi
     // if the product is smaller than the target precision,
     // the result is expected to be negligible
     Timer timer_ij;
-    Orbital rho_ij = phi_i.paramCopy();
+    Orbital rho_ij = phi_i.paramCopy(true);
     mrcpp::multiply(rho_ij, phi_i, phi_j, prec_m1, true, true, true);
     timer_ij.stop();
     if (rho_ij.norm() < prec) return;
@@ -197,8 +197,7 @@ void ExchangePotential::calcExchange_kij(double prec, Orbital phi_k, Orbital phi
     }
     // compute V_ij = P[rho_ij]
     Timer timer_p;
-    Orbital V_ij = rho_ij.paramCopy();
-    V_ij.alloc(0);
+    Orbital V_ij = rho_ij.paramCopy(true);
     if (RealOrbitals) {
         mrcpp::apply(prec_p, *V_ij.CompD[0], P, *rho_ij.CompD[0], phi_opt_vec_real, -1, true);
     } else {

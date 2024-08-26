@@ -70,7 +70,7 @@ TEST_CASE("KineticOperator", "[kinetic_operator]") {
     T.setup(prec);
     SECTION("apply") {
         Orbital Tphi_0 = T(Phi[0]);
-        ComplexDouble T_00 = orbital::dot(static_cast<Orbital>(Phi[0]), Tphi_0);
+        ComplexDouble T_00 = mrcpp::dot(Phi[0], Tphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(T_00.real() == Approx(E_K(0)));
             REQUIRE(T_00.imag() < thrs);
@@ -83,7 +83,7 @@ TEST_CASE("KineticOperator", "[kinetic_operator]") {
         OrbitalVector TPhi = T(Phi);
         ComplexMatrix t = orbital::calc_overlap_matrix(Phi, TPhi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble T_ii = orbital::dot(Phi[i], TPhi[i]);
+            ComplexDouble T_ii = mrcpp::dot(Phi[i], TPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(T_ii.real() == Approx(E_K(i)));
                 REQUIRE(T_ii.imag() < thrs);

@@ -97,7 +97,7 @@ TEST_CASE("CoulombOperator", "[coulomb_operator]") {
     SECTION("vector apply") {
         OrbitalVector VPhi = V(Phi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble V_ii = orbital::dot(static_cast<Orbital>(Phi[i]), static_cast<Orbital>(VPhi[i]));
+            ComplexDouble V_ii = mrcpp::dot(Phi[i], VPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(V_ii.real() == Approx(E_P(i, i)).epsilon(thrs));
                 REQUIRE(V_ii.imag() < thrs);

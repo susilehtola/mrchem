@@ -63,7 +63,7 @@ Orbital QMDerivative::apply(Orbital inp) {
     auto dir = this->apply_dir;
     auto &D = *this->derivative;
 
-    Orbital out = inp.paramCopy();
+    Orbital out = inp.paramCopy(true);
     ComplexDouble metric[4][4];
     ComplexDouble diago = 1.0;
     if (isImag()) diago = {0.0, 1.0};

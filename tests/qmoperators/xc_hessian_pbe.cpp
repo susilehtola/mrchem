@@ -111,7 +111,7 @@ TEST_CASE("XCHessianPBE", "[xc_hessian_pbe]") {
     V.setup(prec);
     SECTION("apply") {
         Orbital Vphi_0 = V(Phi[0]);
-        ComplexDouble V_00 = orbital::dot(static_cast<Orbital>(Phi[0]), static_cast<Orbital>(Vphi_0));
+        ComplexDouble V_00 = mrcpp::dot(Phi[0], Vphi_0);
         if (mrcpp::mpi::my_func(Phi[0])) {
             REQUIRE(V_00.real() == Approx(E_P(0, 0)).epsilon(thrs));
             REQUIRE(V_00.imag() < thrs);
@@ -123,7 +123,7 @@ TEST_CASE("XCHessianPBE", "[xc_hessian_pbe]") {
     SECTION("vector apply") {
         OrbitalVector VPhi = V(Phi);
         for (int i = 0; i < Phi.size(); i++) {
-            ComplexDouble V_ii = orbital::dot(static_cast<Orbital>(Phi[i]), static_cast<Orbital>(VPhi[i]));
+            ComplexDouble V_ii = mrcpp::dot(Phi[i], VPhi[i]);
             if (mrcpp::mpi::my_func(Phi[i])) {
                 REQUIRE(V_ii.real() == Approx(E_P(i, i)).epsilon(thrs));
                 REQUIRE(V_ii.imag() < thrs);

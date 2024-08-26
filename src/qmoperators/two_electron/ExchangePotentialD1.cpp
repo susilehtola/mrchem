@@ -102,7 +102,7 @@ int ExchangePotentialD1::testInternal(Orbital phi_p) const {
  * particular exchange contribution has been precomputed.
  */
 Orbital ExchangePotentialD1::apply(Orbital phi_p) {
-    Orbital out_p = phi_p.paramCopy();
+    Orbital out_p = phi_p.paramCopy(true);
     if (this->apply_prec < 0.0) {
         MSG_ERROR("Uninitialized operator");
         return out_p;
@@ -272,8 +272,8 @@ void ExchangePotentialD1::setupInternal(double prec) {
             for (int i = 0; i < iorb_vec.size(); i++) {
                 int iorb = itasks[task][i];
                 Orbital &phi_i = iorb_vec[i];
-                Orbital ex_jji = phi_i.paramCopy();
-                Orbital ex_iij = phi_j.paramCopy();
+                Orbital ex_jji = phi_i.paramCopy(true);
+                Orbital ex_iij = phi_j.paramCopy(true);
 
                 // compute K_iij and K_jji in one operation
                 double j_fac = getSpinFactor(phi_i, phi_j);
@@ -311,7 +311,7 @@ void ExchangePotentialD1::setupInternal(double prec) {
             }
             // add all contributions to ex_j,
             if (mrcpp::mpi::bank_size > 0 and iijfunc_vec.size() > 0) {
-                Orbital ex_j = phi_j.paramCopy();
+                Orbital ex_j = phi_j.paramCopy(true);
                 t_add.resume();
                 mrcpp::linear_combination(ex_j, coef_vec, iijfunc_vec, prec);
                 t_add.stop();
@@ -361,7 +361,7 @@ void ExchangePotentialD1::setupInternal(double prec) {
             if (tot >= totmax) {
                 // we sum the contributions so far before fetching new ones
                 t_add.resume();
-                auto tmp_j = Ex[j].paramCopy();
+                auto tmp_j = Ex[j].paramCopy(true);
                 mrcpp::linear_combination(tmp_j, coef_vec, iijfunc_vec, prec);
                 Ex[j].add(1.0, tmp_j);
                 tmp_j.free();
@@ -374,7 +374,7 @@ void ExchangePotentialD1::setupInternal(double prec) {
         }
         if (iijfunc_vec.size() > 0) {
             t_add.resume();
-            auto tmp_j = Ex[j].paramCopy();
+            auto tmp_j = Ex[j].paramCopy(true);
             mrcpp::linear_combination(tmp_j, coef_vec, iijfunc_vec, prec);
             Ex[j].add(1.0, tmp_j);
             tmp_j.free();
@@ -426,7 +426,7 @@ Orbital ExchangePotentialD1::calcExchange(Orbital phi_p) {
 
         double spin_fac = getSpinFactor(phi_i, phi_p);
         if (std::abs(spin_fac) >= mrcpp::MachineZero) {
-            Orbital ex_iip = phi_p.paramCopy();
+            Orbital ex_iip = phi_p.paramCopy(true);
             calcExchange_kij(precf, phi_i, phi_i, phi_p, ex_iip);
             coef_vec.push_back(spin_fac / phi_i.getSquareNorm());
             func_vec.push_back(ex_iip);
@@ -436,7 +436,7 @@ Orbital ExchangePotentialD1::calcExchange(Orbital phi_p) {
     }
 
     // compute ex_p = sum_i c_i*ex_iip
-    Orbital ex_p = phi_p.paramCopy();
+    Orbital ex_p = phi_p.paramCopy(true);
     //Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
     mrcpp::linear_combination(ex_p, coef_vec, func_vec, prec);
     print_utils::qmfunction(4, "Applied exchange", ex_p, timer);

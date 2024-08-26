@@ -36,12 +36,6 @@ bool compare(const Orbital &phi_a, const Orbital &phi_b);
 int compare_spin(const Orbital &phi_a, const Orbital &phi_b);
 int compare_occupation(const Orbital &phi_a, const Orbital &phi_b);
 
-ComplexDouble dot(Orbital bra, Orbital ket);
-ComplexDouble dot(mrcpp::CompFunction<3> bra, mrcpp::CompFunction<3>ket);
-ComplexVector dot(OrbitalVector &Bra, OrbitalVector &Ket);
-double node_norm_dot(Orbital bra, Orbital ket);
-double node_norm_dot(mrcpp::CompFunction<3> bra, mrcpp::CompFunction<3>  ket, bool exact);
-
 void normalize(Orbital phi);
 OrbitalChunk get_my_chunk(OrbitalVector &Phi);
 void orthogonalize(double prec, Orbital &&phi, Orbital psi);

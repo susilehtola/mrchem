@@ -89,7 +89,7 @@ Orbital QMPotential::apply(Orbital inp) {
 Orbital QMPotential::dagger(Orbital inp) {
     if (this->apply_prec < 0.0) MSG_ERROR("Uninitialized operator");
 
-    Orbital out = inp.paramCopy();
+    Orbital out = inp.paramCopy(true);
     calc(out, inp, true);
     return out;
 }
