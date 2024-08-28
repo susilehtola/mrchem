@@ -250,7 +250,7 @@ OrbitalVector orbital::deep_copy(OrbitalVector &Phi) {
     OrbitalVector out;
     for (auto &i : Phi) {
         Orbital out_i;
-        if (mrcpp::mpi::my_func(out_i)) mrcpp::deep_copy(out_i, i);
+        if (mrcpp::mpi::my_func(i)) mrcpp::deep_copy(out_i, i);
         out.push_back(out_i);
     }
     return out;
