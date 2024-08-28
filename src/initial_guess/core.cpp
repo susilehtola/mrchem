@@ -232,7 +232,7 @@ void initial_guess::core::rotate_orbitals(OrbitalVector &Psi, double prec, Compl
 
 ComplexMatrix initial_guess::core::diagonalize(OrbitalVector &Phi, MomentumOperator &p, RankZeroOperator &V) {
     Timer t1;
-    ComplexMatrix S_m12 = orbital::calc_lowdin_matrix(Phi);
+    ComplexMatrix S_m12 = mrcpp::calc_lowdin_matrix(Phi);
     mrcpp::print::separator(2, '-');
     ComplexMatrix t_tilde = qmoperator::calc_kinetic_matrix(p, Phi, Phi);
     ComplexMatrix v_tilde = V(Phi, Phi);
