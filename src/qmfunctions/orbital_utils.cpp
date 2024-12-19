@@ -350,7 +350,7 @@ OrbitalVector orbital::disjoin(OrbitalVector &Phi, int spin) {
  * will get an extra "_p", "_a" or "_b" suffix. Negative spin means that all
  * orbitals in the vector are saved, and no suffix is added.
  */
-void orbital::save_orbitals(OrbitalVector &Phi, const std::string &file, int spin) {
+void orbital::save_orbitals(OrbitalVector &Phi, const std::string &file, int spin, int text_format) {
     Timer t_tot;
     std::string spin_str = "All";
     if (spin == SPIN::Paired) spin_str = "Paired";
@@ -367,7 +367,7 @@ void orbital::save_orbitals(OrbitalVector &Phi, const std::string &file, int spi
             Timer t1;
             std::stringstream orbname;
             orbname << file << "_idx_" << n;
-            if (mrcpp::mpi::my_func(Phi[i])) saveOrbital(orbname.str(), Phi[i]);
+            if (mrcpp::mpi::my_func(Phi[i])) saveOrbital(orbname.str(), Phi[i], text_format);
             print_utils::qmfunction(2, "'" + orbname.str() + "'", Phi[i], t1);
             n++;
         }
@@ -1157,8 +1157,8 @@ int orbital::print_size_nodes(const OrbitalVector &Phi, const std::string &txt, 
     return vSum;
 }
 
-void orbital::saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb) {
-    orbital::saveOrbital(file, Orbital(orb));
+void orbital::saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb, int text_format) {
+    orbital::saveOrbital(file, Orbital(orb), text_format);
 }
 
 /** @brief Write orbital to disk
@@ -1169,30 +1169,34 @@ void orbital::saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb) 
  * binary files for meta data ("phi_0.meta"), real ("phi_0_re.tree")
  * and imaginary ("phi_0_im.tree") parts.
  */
-void orbital::saveOrbital(const std::string &file, const Orbital &orb) {
+void orbital::saveOrbital(const std::string &file, const Orbital &orb, int text_format) {
     // writing meta data
     std::stringstream metafile;
     metafile << file << ".meta";
 
-    std::fstream f;
-    f.open(metafile.str(), std::ios::out | std::ios::binary);
-    if (not f.is_open()) MSG_ERROR("Unable to open file");
-    mrcpp::CompFunctionData<3> orbdata = orb.getFuncData();
-    f.write((char *)& orb.func_ptr->data, sizeof(mrcpp::CompFunctionData<3>));
-    f.close();
+    if (not text_format) {
+        std::fstream f;
+        f.open(metafile.str(), std::ios::out | std::ios::binary);
+        if (not f.is_open()) MSG_ERROR("Unable to open file");
+        mrcpp::CompFunctionData<3> orbdata = orb.getFuncData();
+        f.write((char *)& orb.func_ptr->data, sizeof(mrcpp::CompFunctionData<3>));
+        f.close();
+    }
 
-    // writing real part
+   // writing real tree
     if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
-        orb.CompD[0]->saveTree(fname.str());
+        if (text_format) orb.CompD[0]->saveTreeTXT(fname.str());
+        else orb.CompD[0]->saveTree(fname.str());
     }
 
     // writing complex tree
     if (orb.iscomplex()) {
         std::stringstream fname;
         fname << file << "_complex";
-        orb.CompC[0]->saveTree(fname.str());
+        if (text_format) orb.CompC[0]->saveTreeTXT(fname.str());
+        else orb.CompC[0]->saveTree(fname.str());
     }
 }
 
@@ -1207,6 +1211,37 @@ void orbital::saveOrbital(const std::string &file, const Orbital &orb) {
 void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     if (orb.hasReal()) MSG_ERROR("Orbital not empty");
     if (orb.hasImag()) MSG_ERROR("Orbital not empty");
+
+    //test if the file is in text format or MRChem binary format
+    ifstream testfile;
+    std::stringstream fname;
+    fname << file << "_real";
+    testfile.open(fname);
+    if (testfile) {
+        //since the MRChem file names end by .tree, we assume that this one is in text format
+        testfile.close();
+        if (orb.iscomplex()){
+            std::stringstream fname;
+            fname << file << "_real";
+            orb.isreal = 1;
+            orb.alloc(1);
+            orb.CompD[0]->saveTreeTXT(fname.str());
+           loadTreeTXT(file);
+        }
+        return;
+    } else {
+        testfile.close();
+        fname << file << "_complex";
+        testfile.open(fname);
+        if (testfile) {
+            std::stringstream fname;
+            orb.iscomplex = 1;
+            orb.alloc(1);
+            orb.CompC[0]->loadTreeTXT(fname.str());
+            return;
+        }
+   }
+
 
     // reading meta data
     std::stringstream fmeta;
@@ -1238,7 +1273,8 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
         fname << file << "_real";
         orb.alloc(1);
         orb.CompD[0]->loadTree(fname.str());
-    }
+        std::cout<<"size orbital after read "<<orb.CompD[0]->getNNodes()<<" "<<orb.CompD[0]->getSquareNorm()<<" "<<std::endl;
+   }
 
     // reading imaginary part
     if (orb.iscomplex()) {

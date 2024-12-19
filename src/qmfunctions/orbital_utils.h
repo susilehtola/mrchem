@@ -49,7 +49,7 @@ OrbitalVector param_copy(const OrbitalVector &Phi);
 OrbitalVector adjoin(OrbitalVector &Phi_a, OrbitalVector &Phi_b);
 OrbitalVector disjoin(OrbitalVector &Phi, int spin);
 
-void save_orbitals(OrbitalVector &Phi, const std::string &file, int spin = -1);
+void save_orbitals(OrbitalVector &Phi, const std::string &file, int spin = -1, int text_format = 0);
 OrbitalVector load_orbitals(const std::string &file, int n_orbs = -1);
 
 void save_nodes(OrbitalVector Phi, mrcpp::FunctionTree<3> &refTree, mrcpp::BankAccount &nodes);
@@ -93,8 +93,8 @@ ComplexVector get_integrals(const OrbitalVector &Phi);
 
 void print(const OrbitalVector &Phi);
 int print_size_nodes(const OrbitalVector &Phi, const std::string &txt = "", bool all = true, int plevel = 0);
-void saveOrbital(const std::string &file, const Orbital& orb);
-void saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb);
+void saveOrbital(const std::string &file, const Orbital& orb, int text_format = 0);
+void saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb, int text_format = 0);
 void loadOrbital(const std::string &file, Orbital& orb);
 
 } // namespace orbital

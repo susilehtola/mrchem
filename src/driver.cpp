@@ -113,6 +113,7 @@ namespace scf {
 bool guess_orbitals(const json &input, Molecule &mol);
 bool guess_energy(const json &input, Molecule &mol, FockBuilder &F);
 void write_orbitals(const json &input, Molecule &mol);
+void write_orbitals_txt(const json &input, Molecule &mol);
 void calc_properties(const json &input, Molecule &mol);
 void plot_quantities(const json &input, Molecule &mol);
 } // namespace scf
@@ -306,6 +307,7 @@ json driver::scf::run(const json &json_scf, Molecule &mol) {
     ///////////////////////////////////////////////////////////
 
     if (json_out["success"]) {
+        if (json_scf.contains("write_orbitals_txt")) scf::write_orbitals_txt(json_scf["write_orbitals_txt"], mol);
         if (json_scf.contains("write_orbitals")) scf::write_orbitals(json_scf["write_orbitals"], mol);
         if (json_scf.contains("properties")) scf::calc_properties(json_scf["properties"], mol);
         if (json_scf.contains("plots")) scf::plot_quantities(json_scf["plots"], mol);
@@ -445,6 +447,13 @@ bool driver::scf::guess_energy(const json &json_guess, Molecule &mol, FockBuilde
     mrcpp::print::footer(1, t_eps, 2);
     mol.printEnergies("initial");
     return true;
+}
+
+void driver::scf::write_orbitals_txt(const json &json_orbs, Molecule &mol) {
+    auto &Phi = mol.getOrbitals();
+    orbital::save_orbitals(Phi, json_orbs["file_phi_p"], SPIN::Paired, true);
+    orbital::save_orbitals(Phi, json_orbs["file_phi_a"], SPIN::Alpha, true);
+    orbital::save_orbitals(Phi, json_orbs["file_phi_b"], SPIN::Beta, true);
 }
 
 void driver::scf::write_orbitals(const json &json_orbs, Molecule &mol) {
