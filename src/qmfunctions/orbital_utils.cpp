@@ -1212,36 +1212,30 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     if (orb.hasReal()) MSG_ERROR("Orbital not empty");
     if (orb.hasImag()) MSG_ERROR("Orbital not empty");
 
-    //test if the file is in text format or MRChem binary format
-    ifstream testfile;
-    std::stringstream fname;
-    fname << file << "_real";
-    testfile.open(fname);
+    //first test if the file is in text format or MRChem binary format
+    std::ifstream testfile;
+    std::stringstream fname_re;
+    fname_re << file << "_real";
+    testfile.open(fname_re.str());
     if (testfile) {
         //since the MRChem file names end by .tree, we assume that this one is in text format
-        testfile.close();
-        if (orb.iscomplex()){
-            std::stringstream fname;
-            fname << file << "_real";
-            orb.isreal = 1;
-            orb.alloc(1);
-            orb.CompD[0]->saveTreeTXT(fname.str());
-           loadTreeTXT(file);
-        }
+        orb.defreal();
+        orb.alloc(1);
+        orb.CompD[0]->loadTreeTXT(fname_re.str());
         return;
-    } else {
-        testfile.close();
-        fname << file << "_complex";
-        testfile.open(fname);
-        if (testfile) {
-            std::stringstream fname;
-            orb.iscomplex = 1;
-            orb.alloc(1);
-            orb.CompC[0]->loadTreeTXT(fname.str());
-            return;
-        }
-   }
+    }
+    std::stringstream fname_co;
+    fname_co << file << "_complex";
+    testfile.open(fname_co.str());
+    if (testfile) {
+        //since the MRChem file names end by .tree, we assume that this one is in text format
+        orb.defcomplex();
+        orb.alloc(1);
+        orb.CompC[0]->loadTreeTXT(fname_co.str());
+        return;
+    }
 
+    // the file is not in TXT format if this point is reached
 
     // reading meta data
     std::stringstream fmeta;
@@ -1267,16 +1261,15 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
         MSG_ABORT("Invalid basis type!");
     }
 
-    // reading real part
+    // reading real orbital
     if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
         orb.alloc(1);
         orb.CompD[0]->loadTree(fname.str());
-        std::cout<<"size orbital after read "<<orb.CompD[0]->getNNodes()<<" "<<orb.CompD[0]->getSquareNorm()<<" "<<std::endl;
    }
 
-    // reading imaginary part
+    // reading complex orbital
     if (orb.iscomplex()) {
         std::stringstream fname;
         fname << file << "_complex";
