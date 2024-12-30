@@ -363,34 +363,6 @@ json GroundStateSolver::optimize(Molecule &mol, FockBuilder &F) {
         mrcpp::print::footer(1, t_scf, 2, '#');
         mrcpp::print::separator(2, ' ', 2);
 
-        mrcpp::Coord<3> r;
-        r[0]=0.12;
-        r[1]=0.13;
-        r[2]=0.14;
-
-        double valp=Phi_n[0].real().evalf_precise(r);
-        double val=Phi_n[0].real().evalf(r);
-        std::cout<< std::setprecision(14)<<r[0]<<" "<<r[1]<<" "<<r[2]<<" "<<valp<<" "<<val<<std::endl;
-
-        r[0]=-0.12;
-        r[1]=-0.13;
-        r[2]=-0.14;
-
-        valp=Phi_n[0].real().evalf_precise(r);
-        val=Phi_n[0].real().evalf(r);
-        std::cout<< std::setprecision(14)<<r[0]<<" "<<r[1]<<" "<<r[2]<<" "<<valp<<" "<<val<<std::endl;
-        std::cout<< Phi_n[0].real().getMRA().getWorldBox()<<std::endl;
-
-        r[0]=0.0;
-        r[1]=0.0;
-        r[2]=0.0;
-
-        valp=Phi_n[0].real().evalf_precise(r);
-        val=Phi_n[0].real().evalf(r);
-        std::cout<< std::setprecision(14)<<r[0]<<" "<<r[1]<<" "<<r[2]<<" "<<valp<<" "<<val<<std::endl;
-        std::cout<< Phi_n[0].real().getMRA().getWorldBox()<<std::endl;
-
-
         json_out["cycles"].push_back(json_cycle);
         if (converged) break;
     }

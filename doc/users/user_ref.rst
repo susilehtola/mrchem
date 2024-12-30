@@ -225,19 +225,31 @@ User input reference
 
     **Default** ``False``
 
-   :bank_size: Number of MPI processes exclusively dedicated to manage orbital bank.
+   :bank_size: Number of MPI processes exclusively dedicated to manage orbital bank in total.
 
     **Type** ``int``
 
     **Default** ``-1``
 
-   :omp_threads: Force the number of OpenMP threads.
+   :bank_per_node: Number of MPI processes exclusively dedicated to manage orbital bank for each node.
 
     **Type** ``int``
 
     **Default** ``-1``
 
-    :Basis: Define polynomial basis.
+   :omp_threads: Force the number of OpenMP threads for workers.
+
+    **Type** ``int``
+
+    **Default** ``-1``
+
+   :use_omp_num_threads: Use the environment variable OMP_NUM_THREADS to determine the average number of threads for OMP (NB: banks will use 1 thread, workers may use more threads than OMP_NUM_THREADS).
+
+    **Type** ``bool``
+
+    **Default** ``false``
+
+:Basis: Define polynomial basis.
 
   :red:`Keywords`
    :order: Polynomial order of multiwavelet basis. Negative value means it will be set automatically based on the world precision.
@@ -689,7 +701,7 @@ User input reference
 
     **Default** ``-1.0``
 
-   :guess_type: Type of initial guess for ground state orbitals. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. This will load MRA and electron spin configuration directly from the checkpoint files, which are thus required to be identical in the two calculations. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` keyword. The orbitals will be re-projected into the new computational setup, which means that the electron spin configuration and MRA can be different in the two calculations. ``gto`` reads precomputed GTO orbitals (requires extra non-standard input files for basis set and MO coefficients). ``core`` and ``sad`` will diagonalize the Fock matrix in the given AO basis (SZ, DZ, TZ or QZ) using a Core or Superposition of Atomic Densities Hamiltonian, respectively. ``cube`` will start from orbitals saved in cubefiles from external calculations.
+   :guess_type: Type of initial guess for ground state orbitals. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. This will load MRA and electron spin configuration directly from the checkpoint files, which are thus required to be identical in the two calculations. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` or ``write_orbitals_txt`` keyword. The orbitals will be re-projected into the new computational setup, which means that the electron spin configuration and MRA can be different in the two calculations. ``gto`` reads precomputed GTO orbitals (requires extra non-standard input files for basis set and MO coefficients). ``core`` and ``sad`` will diagonalize the Fock matrix in the given AO basis (SZ, DZ, TZ or QZ) using a Core or Superposition of Atomic Densities Hamiltonian, respectively. ``cube`` will start from orbitals saved in cubefiles from external calculations.
 
     **Type** ``str``
 
@@ -788,7 +800,7 @@ User input reference
     **Predicates**
       - ``1.0e-10 < value < 1.0``
 
-   :guess_type: Type of initial guess for response. ``none`` will start from a zero guess for the response functions. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` keyword. The orbitals will be re-projected into the new computational setup.
+   :guess_type: Type of initial guess for response. ``none`` will start from a zero guess for the response functions. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` or the ``write_orbitals_txt`` keyword. The orbitals will be re-projected into the new computational setup.
 
     **Type** ``str``
 
@@ -818,7 +830,13 @@ User input reference
 
     **Default** ``False``
 
-   :path_orbitals: Path to where converged orbitals will be written in connection with the ``write_orbitals`` keyword.
+   :write_orbitals_txt: Write final perturbed orbitals to disk, file name ``<path_orbitals>/<X/Y>_<p/a/b>_rsp_<direction>_idx_<0..Np/Na/Nb>``. Can be used as ``mw`` initial guess in subsequent calculations. The orbitals are written in a readable and portable text format.
+
+    **Type** ``bool``
+
+    **Default** ``False``
+
+   :path_orbitals: Path to where converged orbitals will be written in connection with the ``write_orbitals``  or ``write_orbitals_txt`` keyword.
 
     **Type** ``str``
 

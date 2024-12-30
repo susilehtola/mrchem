@@ -1183,7 +1183,7 @@ void orbital::saveOrbital(const std::string &file, const Orbital &orb, int text_
         f.close();
     }
 
-   // writing real tree
+    // writing real tree
     if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
@@ -1267,7 +1267,7 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
         fname << file << "_real";
         orb.alloc(1);
         orb.CompD[0]->loadTree(fname.str());
-   }
+    }
 
     // reading complex orbital
     if (orb.iscomplex()) {
