@@ -53,7 +53,7 @@ ComplexMatrix calc_localization_matrix(double prec, OrbitalVector &Phi);
 struct OrbitalData {
     int rank_id;
     int spin;
-    int occ;
+    double occ;
 };
 OrbitalData getOrbitalData(const Orbital &orb) {
     OrbitalData orb_data;
@@ -865,7 +865,7 @@ int orbital::get_electron_number(const OrbitalVector &Phi, int spin) {
     int nElectrons = 0;
     for (auto &phi_i : Phi) {
         if (spin == SPIN::Paired) {
-            nElectrons += phi_i.occ();
+            nElectrons += (int) phi_i.occ() + 0.5; // nearest integer
         } else if (spin == SPIN::Alpha) {
             if (phi_i.spin() == SPIN::Paired or phi_i.spin() == SPIN::Alpha) nElectrons += 1;
         } else if (spin == SPIN::Beta) {
@@ -920,9 +920,9 @@ void orbital::set_spins(OrbitalVector &Phi, const IntVector &spins) {
 }
 
 /** @brief Returns a vector containing the orbital occupations */
-IntVector orbital::get_occupations(const OrbitalVector &Phi) {
+DoubleVector orbital::get_occupations(const OrbitalVector &Phi) {
     int nOrbs = Phi.size();
-    IntVector occup = IntVector::Zero(nOrbs);
+    DoubleVector occup = DoubleVector::Zero(nOrbs);
     for (int i = 0; i < nOrbs; i++) occup(i) = Phi[i].occ();
     return occup;
 }
@@ -932,7 +932,7 @@ IntVector orbital::get_occupations(const OrbitalVector &Phi) {
  * Length of input vector must match the number of orbitals in the set.
  *
  */
-void orbital::set_occupations(OrbitalVector &Phi, const IntVector &occup) {
+void orbital::set_occupations(OrbitalVector &Phi, const DoubleVector &occup) {
     if (Phi.size() != occup.size()) MSG_ERROR("Size mismatch");
     for (int i = 0; i < Phi.size(); i++) Phi[i].occ() = occup(i);
 }

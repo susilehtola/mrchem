@@ -51,18 +51,18 @@ namespace mrchem {
 
 // Note: cannot only define "getSpin()", because sometime we only have a CompFunction, not an Orbital
 #define spin() func_ptr->data.n1[0]
-#define occ() func_ptr->data.n2[0]
+#define occ() func_ptr->data.d1[0]
 class Orbital : public mrcpp::CompFunction<3> {
 public:
     Orbital();
     Orbital(SPIN::type spin);
     Orbital(Orbital &orb);
     Orbital(const mrcpp::CompFunction<3> &orb);
-    Orbital(int spin, int occ, int rank = -1);
+    Orbital(int spin, double occ, int rank = -1);
     Orbital dagger() const;
 
     //    const int spin() const {return data().n1[0];}
-    //    const int occ() const {return data().n2[0];}
+    //    const int occ() const {return data().d1[0];}
     char printSpin() const;
     void setSpin(int spin) {this->func_ptr->data.n1[0] = spin;}
     void saveOrbital(const std::string &file);

@@ -42,11 +42,11 @@ namespace mrchem {
 class OrbitalEnergies final {
 public:
     IntVector &getSpin() { return this->spinVec; }
-    IntVector &getOccupation() { return this->occupation; }
+    DoubleVector &getOccupation() { return this->occupation; }
     DoubleVector &getEpsilon() { return this->epsilon; }
 
     const IntVector &getSpin() const { return this->spinVec; }
-    const IntVector &getOccupation() const { return this->occupation; }
+    const DoubleVector &getOccupation() const { return this->occupation; }
     const DoubleVector &getEpsilon() const { return this->epsilon; }
 
     void print(const std::string &id) const {
@@ -85,7 +85,7 @@ public:
     }
 
     nlohmann::json json() const {
-        DoubleVector occ = getOccupation().cast<double>();
+        DoubleVector occ = getOccupation();
         const DoubleVector &eps = getEpsilon();
         std::vector<std::string> spn;
         for (auto i = 0; i < spinVec.size(); i++) {
@@ -103,7 +103,7 @@ public:
 
 private:
     IntVector spinVec;
-    IntVector occupation;
+    DoubleVector occupation;
     DoubleVector epsilon;
 };
 // clang-format on

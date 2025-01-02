@@ -225,19 +225,31 @@ User input reference
 
     **Default** ``False``
 
-   :bank_size: Number of MPI processes exclusively dedicated to manage orbital bank.
+   :bank_size: Number of MPI processes exclusively dedicated to manage orbital bank in total.
 
     **Type** ``int``
 
     **Default** ``-1``
 
-   :omp_threads: Force the number of omp threads (leave default is better).
+   :bank_per_node: Number of MPI processes exclusively dedicated to manage orbital bank for each node.
 
     **Type** ``int``
 
     **Default** ``-1``
 
- :Basis: Define polynomial basis.
+   :omp_threads: Force the number of OpenMP threads for workers.
+
+    **Type** ``int``
+
+    **Default** ``-1``
+
+   :use_omp_num_threads: Use the environment variable OMP_NUM_THREADS to determine the average number of threads for OMP (NB: banks will use 1 thread, workers may use more threads than OMP_NUM_THREADS).
+
+    **Type** ``bool``
+
+    **Default** ``false``
+
+:Basis: Define polynomial basis.
 
   :red:`Keywords`
    :order: Polynomial order of multiwavelet basis. Negative value means it will be set automatically based on the world precision.
@@ -326,14 +338,15 @@ User input reference
 
     **Default** ``True``
 
-   :relativity: Set method for relativistic treatment. ``ZORA`` for fully self-consistent ZORA potential, by default including all potentials (``V_nuc``, ``J``, ``V_xc``) but this can be overwritten in the ``ZORA`` section. ``nZORA`` is shortcut for nuclear-ZORA, i.e. only ``V_nuc`` is included (this keyword takes precedence over keywords in the ``ZORA`` section).
+   :relativity: Set method for relativistic treatment. ``ZORA`` for fully self-consistent ZORA potential, by default including all potentials (``V_nuc``, ``J``, ``V_xc``) but this can be overwritten in the ``ZORA`` section. ``nZORA`` is shortcut for nuclear-ZORA, i.e. only ``V_nuc`` is included (this keyword takes precedence over keywords in the ``ZORA`` section). ``azora`` uses atomic ZORA potentials, which are precomputed and read from the directory  specified in the ``azora_potential_path`` keyword.
 
     **Type** ``str``
 
     **Default** ``none``
 
     **Predicates**
-      - ``value.lower() in ['none', 'zora', 'nzora']``
+
+      - ``value.lower() in ['none', 'zora', 'nzora', 'azora']``
 
    :environment: Set method for treatment of environment. ``none`` for vacuum calculation. ``PCM`` for Polarizable Continuum Model, which will activate the ``PCM`` input section for further parametrization options. The ``PB`` and ``LPB`` variants add the Poisson-Boltzmann and Linearized Poisson-Boltzmann solvers, respectively.
 
@@ -373,6 +386,12 @@ User input reference
     **Type** ``bool``
 
     **Default** ``True``
+
+   :azora_potential_path: Path to the directory containing the AZORA potentials. If not specified, the default potentials will be used. Look into the readme file in the share/azora_potentials directory for information about the potential file format.
+
+    **Type** ``str``
+
+    **Default** ``none``
 
  :DFT: Define the exchange-correlation functional in case of DFT.
 
@@ -440,11 +459,44 @@ User input reference
 
     **Default** ``[]``
 
+   :hirshfeld_charges: Compute Hirshfeld charges.
+
+    **Type** ``bool``
+
+    **Default** ``False``
+
    :geometric_derivative: Compute geometric derivative.
 
     **Type** ``bool``
 
     **Default** ``user['GeometryOptimizer']['run']``
+
+ :Forces: Define parameters for the computation of forces.
+
+  :red:`Keywords`
+   :method: Method for computing forces. ``surface_integrals`` (more accurate) uses surface integrals over the quantum mechanical stress tensor, while ``hellmann_feynman`` uses the Hellmann-Feynman theorem.
+
+    **Type** ``str``
+
+    **Default** ``surface_integrals``
+
+    **Predicates**
+      - ``value.lower() in ['surface_integrals', 'hellmann_feynman']``
+
+   :surface_integral_precision: Precision of the surface integrals used in the computation of forces. Determines the number of Lebedev grid points used in the surface integration.
+
+    **Type** ``str``
+
+    **Default** ``medium``
+
+    **Predicates**
+      - ``value.lower() in ['low', 'medium', 'high']``
+
+   :radius_factor: Sets the radius of the surface used in the computation of forces. The radius is given by this factor times the distance to the neariest neighbour. Must be between 0.1 and 0.9. This should rarely need to be changed. Different values can change the accuracy of the forces.
+
+    **Type** ``float``
+
+    **Default** ``0.6``
 
  :ExternalFields: Define external electromagnetic fields.
 
@@ -689,7 +741,7 @@ User input reference
 
     **Default** ``-1.0``
 
-   :guess_type: Type of initial guess for ground state orbitals. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. This will load MRA and electron spin configuration directly from the checkpoint files, which are thus required to be identical in the two calculations. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` keyword. The orbitals will be re-projected into the new computational setup, which means that the electron spin configuration and MRA can be different in the two calculations. ``gto`` reads precomputed GTO orbitals (requires extra non-standard input files for basis set and MO coefficients). ``core`` and ``sad`` will diagonalize the Fock matrix in the given AO basis (SZ, DZ, TZ or QZ) using a Core or Superposition of Atomic Densities Hamiltonian, respectively. ``cube`` will start from orbitals saved in cubefiles from external calculations.
+   :guess_type: Type of initial guess for ground state orbitals. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. This will load MRA and electron spin configuration directly from the checkpoint files, which are thus required to be identical in the two calculations. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` or ``write_orbitals_txt`` keyword. The orbitals will be re-projected into the new computational setup, which means that the electron spin configuration and MRA can be different in the two calculations. ``gto`` reads precomputed GTO orbitals (requires extra non-standard input files for basis set and MO coefficients). ``core`` and ``sad`` will diagonalize the Fock matrix in the given AO basis (SZ, DZ, TZ or QZ) using a Core or Superposition of Atomic Densities Hamiltonian, respectively. ``cube`` will start from orbitals saved in cubefiles from external calculations.
 
     **Type** ``str``
 
@@ -788,7 +840,7 @@ User input reference
     **Predicates**
       - ``1.0e-10 < value < 1.0``
 
-   :guess_type: Type of initial guess for response. ``none`` will start from a zero guess for the response functions. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` keyword. The orbitals will be re-projected into the new computational setup.
+   :guess_type: Type of initial guess for response. ``none`` will start from a zero guess for the response functions. ``chk`` restarts a previous calculation which was dumped using the ``write_checkpoint`` keyword. ``mw`` will start from final orbitals in a previous calculation written using the ``write_orbitals`` or the ``write_orbitals_txt`` keyword. The orbitals will be re-projected into the new computational setup.
 
     **Type** ``str``
 
@@ -818,7 +870,13 @@ User input reference
 
     **Default** ``False``
 
-   :path_orbitals: Path to where converged orbitals will be written in connection with the ``write_orbitals`` keyword.
+   :write_orbitals_txt: Write final perturbed orbitals to disk, file name ``<path_orbitals>/<X/Y>_<p/a/b>_rsp_<direction>_idx_<0..Np/Na/Nb>``. Can be used as ``mw`` initial guess in subsequent calculations. The orbitals are written in a readable and portable text format.
+
+    **Type** ``bool``
+
+    **Default** ``False``
+
+   :path_orbitals: Path to where converged orbitals will be written in connection with the ``write_orbitals``  or ``write_orbitals_txt`` keyword.
 
     **Type** ``str``
 
