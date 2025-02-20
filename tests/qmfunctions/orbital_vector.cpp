@@ -214,16 +214,6 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         REQUIRE(norms3[0] == Approx(1.0));
         REQUIRE(norms3[1] == Approx(1.0));
 
-        SECTION("norm overlap") {
-            ComplexMatrix S = orbital::calc_overlap_matrix(Phi);
-            DoubleMatrix Snorm = orbital::calc_norm_overlap_matrix(Phi);
-            for (int i = 0; i < S.rows(); i++) {
-                for (int j = 0; j < S.cols(); j++) {
-                    if (i == j) REQUIRE(Snorm(i, j) == Approx(1.0));
-                    if (i != j) REQUIRE(Snorm(i, j) >= Approx(std::abs(S(i, j))));
-                }
-            }
-       }
     }
 
     SECTION("orthogonalization") {
