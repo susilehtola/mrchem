@@ -43,7 +43,6 @@ ZoraOperator::ZoraOperator(QMPotential &vz, double c, double proj_prec, bool inv
 
     std::shared_ptr<QMPotential> k = std::make_shared<QMPotential>(1);
     mrcpp::deep_copy(*k, vz);
-
     if (k->hasImag()) MSG_ERROR("Inverse of complex function in zora potential");
     if (k->hasReal()) {
         mrcpp::refine_grid(k->real(), 1);

@@ -42,6 +42,10 @@
  * hierarchy should NOT be used directly, as the most important functionality is
  * protected. A proper interface is provided through RankZeroOperator.
  *
+ * Note that operators are treated as real, with possibly a Complex scalar factor,
+ * this factor is applied only if the function the ooperator is applied to is complex,
+ * if the function is real, only the soft factor (out.func_ptr->data.c1[0]) is multiplied.
+ *
  * Notes on naming conventions of derived operator classes:
  * Direct decendants of QMOperator should START with "QM", like QMPotential, QMSpin,
  * QMMomentum. Further decendants of QMPotential should END with "Potential", like

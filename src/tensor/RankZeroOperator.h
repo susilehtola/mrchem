@@ -110,6 +110,7 @@ public:
     RankZeroOperator &operator-=(const RankZeroOperator &O);
 
     friend RankZeroOperator operator*(ComplexDouble a, RankZeroOperator A);
+    friend RankZeroOperator operator*(double a, RankZeroOperator A);
     friend RankZeroOperator operator*(RankZeroOperator A, RankZeroOperator B);
     friend RankZeroOperator operator+(RankZeroOperator A, RankZeroOperator B);
     friend RankZeroOperator operator-(RankZeroOperator A, RankZeroOperator B);
@@ -125,7 +126,7 @@ protected:
     std::vector<ComplexDouble> getCoefVector() const;
 };
 
-inline RankZeroOperator operator*(ComplexDouble a, RankZeroOperator A) {
+    inline RankZeroOperator operator*(double a, RankZeroOperator A) {
     RankZeroOperator out;
     out.name() = A.name();
     for (int i = 0; i < A.oper_exp.size(); i++) {

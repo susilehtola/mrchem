@@ -334,7 +334,6 @@ OrbitalVector FockBuilder::buildHelmholtzArgumentZORA(OrbitalVector &Phi, Orbita
     auto normsTwo = orbital::get_norms(termTwo);
     auto normsThree = orbital::get_norms(termThree);
     auto normsPsi = orbital::get_norms(Psi);
-
     // Add up all the terms
     Timer t_add;
     OrbitalVector arg = orbital::deep_copy(termOne);

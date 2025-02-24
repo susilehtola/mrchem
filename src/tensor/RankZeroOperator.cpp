@@ -471,7 +471,6 @@ ComplexDouble RankZeroOperator::trace(const Nuclei &nucs) {
     std::vector<ComplexDouble> coef_vec = getCoefVector();
     ComplexDouble out = 0.0;
     for (int n = 0; n < O.size(); n++) out += coef_vec[n] * O.traceOperTerm(n, nucs);
-
     std::stringstream o_name;
     o_name << "Trace " << O.name() << "(nucs)";
     mrcpp::print::tree(2, o_name.str(), 0, 0, t1.elapsed());
