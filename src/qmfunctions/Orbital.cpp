@@ -60,7 +60,7 @@ Orbital::Orbital(SPIN::type spin)
  *
  */
 Orbital::Orbital(int spin, double occ, int rank)
-        : mrcpp::CompFunction<3>(spin){
+        : mrcpp::CompFunction<3>(spin) {
     if (this->spin() < 0) INVALID_ARG_ABORT;
     if (this->occ() < 0) {
         // d1 is defined as occupancy
@@ -70,7 +70,6 @@ Orbital::Orbital(int spin, double occ, int rank)
     }
     this->func_ptr->rank = rank;
 }
-
 
 /** @brief Copy constructor
  *
@@ -83,7 +82,6 @@ Orbital::Orbital(int spin, double occ, int rank)
 Orbital::Orbital(Orbital &orb)
         : mrcpp::CompFunction<3>(orb) {}
 
-
 /** @brief Copy constructor
  *
  * @param orb: orbital to copy
@@ -92,11 +90,10 @@ Orbital::Orbital(Orbital &orb)
  * NO transfer of ownership:
  * both orbitals are pointing to the same tree
  */
-//Orbital::Orbital(const mrcpp::CompFunction<3> &orb)
-//        : mrcpp::CompFunction<3>(orb) {}
-Orbital::Orbital(const mrcpp::CompFunction<3>& orb)
-    : mrcpp::CompFunction<3>(orb) {}
-
+// Orbital::Orbital(const mrcpp::CompFunction<3> &orb)
+//         : mrcpp::CompFunction<3>(orb) {}
+Orbital::Orbital(const mrcpp::CompFunction<3> &orb)
+        : mrcpp::CompFunction<3>(orb) {}
 
 /** @brief Complex conjugation
  *

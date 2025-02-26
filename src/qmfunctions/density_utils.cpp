@@ -1,4 +1,4 @@
- /*
+/*
  * MRChem, a numerical real-space code for molecular electronic structure
  * calculations within the self-consistent field (SCF) approximations of quantum
  * chemistry (Hartree-Fock and Density Functional Theory).
@@ -24,10 +24,10 @@
  */
 
 #include "MRCPP/Gaussians"
+#include "MRCPP/MWFunctions"
+#include "MRCPP/Parallel"
 #include "MRCPP/Printer"
 #include "MRCPP/Timer"
-#include "MRCPP/Parallel"
-#include "MRCPP/MWFunctions"
 
 #include "Density.h"
 #include "Orbital.h"
@@ -196,8 +196,8 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
             Density rho_x(false);
             Density rho_y(false);
             MSG_ERROR("Complex trees not yet included");
-            mrcpp::multiply(rho_x, Phi[i], X[i], mult_prec, false, false, true); //last true means complex conjugate of Phi[i]
-            mrcpp::multiply(rho_y, Y[i], Phi[i], mult_prec, false, false, true);//last true means complex conjugate of Y[i]
+            mrcpp::multiply(rho_x, Phi[i], X[i], mult_prec, false, false, true); // last true means complex conjugate of Phi[i]
+            mrcpp::multiply(rho_y, Y[i], Phi[i], mult_prec, false, false, true); // last true means complex conjugate of Y[i]
             rho.add(occ, rho_x);
             rho.add(occ, rho_y);
             rho.crop(add_prec);
@@ -245,12 +245,11 @@ void density::allreduce_density(double prec, Density &rho_tot, Density &rho_loc)
     } else {
         // MPI grand master distributes to all ranks
         mrcpp::mpi::broadcast_function(rho_loc, mrcpp::mpi::comm_wrk);
-       // All MPI ranks copies the function into final memory
+        // All MPI ranks copies the function into final memory
         mrcpp::copy_grid(rho_tot.real(), rho_loc.real());
         mrcpp::copy_func(rho_tot.real(), rho_loc.real());
     }
 }
-
 
 // Function to read atomic density data from a file
 void density::readAtomicDensity(const std::string path, Eigen::VectorXd &rGrid, Eigen::VectorXd &rhoGrid) {

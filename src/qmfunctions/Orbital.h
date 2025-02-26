@@ -64,7 +64,7 @@ public:
     //    const int spin() const {return data().n1[0];}
     //    const int occ() const {return data().d1[0];}
     char printSpin() const;
-    void setSpin(int spin) {this->func_ptr->data.n1[0] = spin;}
+    void setSpin(int spin) { this->func_ptr->data.n1[0] = spin; }
     void saveOrbital(const std::string &file);
     void loadOrbital(const std::string &file);
 };
@@ -76,11 +76,12 @@ public:
 // OrbitalVectors, but directly vector<Orbital>.
 class OrbitalVector : public mrcpp::CompFunctionVector {
 public:
-    OrbitalVector(int N = 0) : mrcpp::CompFunctionVector(N) {}
+    OrbitalVector(int N = 0)
+            : mrcpp::CompFunctionVector(N) {}
     void push_back(Orbital orb) {
-        mrcpp::CompFunction<3>& compfunc = orb;
+        mrcpp::CompFunction<3> &compfunc = orb;
         compfunc.func_ptr->rank = size();
-        mrcpp::CompFunctionVector* compfuncvec = this;
+        mrcpp::CompFunctionVector *compfuncvec = this;
         compfuncvec->push_back(compfunc); // we must push in the vector<CompFunction>, not into the OrbitalVector!
     }
     // Overloaded operator[] to return an Orbital element
@@ -92,9 +93,7 @@ public:
     }
     // Non-const version of operator[] to allow modification of elements
     // for write (returns rvalue). Cannot return an Orbital
-    mrcpp::CompFunction<3>& operator[](int i) {
-        return mrcpp::CompFunctionVector::operator[](i);
-    }
+    mrcpp::CompFunction<3> &operator[](int i) { return mrcpp::CompFunctionVector::operator[](i); }
 };
 
 } // namespace mrchem

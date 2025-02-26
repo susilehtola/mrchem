@@ -476,7 +476,7 @@ void orbital::orthogonalize(double prec, OrbitalVector &Phi, OrbitalVector &Psi)
  *
  */
 ComplexMatrix orbital::calc_overlap_matrix(OrbitalVector &BraKet) {
-     return mrcpp::calc_overlap_matrix(BraKet);
+    return mrcpp::calc_overlap_matrix(BraKet);
 }
 
 /** @brief Compute the overlap matrix S_ij = <bra_i|ket_j>
@@ -717,7 +717,7 @@ int orbital::get_electron_number(const OrbitalVector &Phi, int spin) {
     int nElectrons = 0;
     for (auto &phi_i : Phi) {
         if (spin == SPIN::Paired) {
-            nElectrons += (int) phi_i.occ() + 0.5; // nearest integer
+            nElectrons += (int)phi_i.occ() + 0.5; // nearest integer
         } else if (spin == SPIN::Alpha) {
             if (phi_i.spin() == SPIN::Paired or phi_i.spin() == SPIN::Alpha) nElectrons += 1;
         } else if (spin == SPIN::Beta) {
@@ -1009,7 +1009,7 @@ int orbital::print_size_nodes(const OrbitalVector &Phi, const std::string &txt, 
     return vSum;
 }
 
-void orbital::saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb, int text_format) {
+void orbital::saveOrbital(const std::string &file, mrcpp::CompFunction<3> &orb, int text_format) {
     orbital::saveOrbital(file, Orbital(orb), text_format);
 }
 
@@ -1031,7 +1031,7 @@ void orbital::saveOrbital(const std::string &file, const Orbital &orb, int text_
         f.open(metafile.str(), std::ios::out | std::ios::binary);
         if (not f.is_open()) MSG_ERROR("Unable to open file");
         mrcpp::CompFunctionData<3> orbdata = orb.getFuncData();
-        f.write((char *)& orb.func_ptr->data, sizeof(mrcpp::CompFunctionData<3>));
+        f.write((char *)&orb.func_ptr->data, sizeof(mrcpp::CompFunctionData<3>));
         f.close();
     }
 
@@ -1039,16 +1039,20 @@ void orbital::saveOrbital(const std::string &file, const Orbital &orb, int text_
     if (orb.isreal()) {
         std::stringstream fname;
         fname << file << "_real";
-        if (text_format) orb.CompD[0]->saveTreeTXT(fname.str());
-        else orb.CompD[0]->saveTree(fname.str());
+        if (text_format)
+            orb.CompD[0]->saveTreeTXT(fname.str());
+        else
+            orb.CompD[0]->saveTree(fname.str());
     }
 
     // writing complex tree
     if (orb.iscomplex()) {
         std::stringstream fname;
         fname << file << "_complex";
-        if (text_format) orb.CompC[0]->saveTreeTXT(fname.str());
-        else orb.CompC[0]->saveTree(fname.str());
+        if (text_format)
+            orb.CompC[0]->saveTreeTXT(fname.str());
+        else
+            orb.CompC[0]->saveTree(fname.str());
     }
 }
 
@@ -1064,13 +1068,13 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     if (orb.hasReal()) MSG_ERROR("Orbital not empty");
     if (orb.hasImag()) MSG_ERROR("Orbital not empty");
 
-    //first test if the file is in text format or MRChem binary format
+    // first test if the file is in text format or MRChem binary format
     std::ifstream testfile;
     std::stringstream fname_re;
     fname_re << file << "_real";
     testfile.open(fname_re.str());
     if (testfile) {
-        //since the MRChem file names end by .tree, we assume that this one is in text format
+        // since the MRChem file names end by .tree, we assume that this one is in text format
         orb.defreal();
         orb.alloc(1);
         orb.CompD[0]->loadTreeTXT(fname_re.str());
@@ -1080,7 +1084,7 @@ void orbital::loadOrbital(const std::string &file, Orbital &orb) {
     fname_co << file << "_complex";
     testfile.open(fname_co.str());
     if (testfile) {
-        //since the MRChem file names end by .tree, we assume that this one is in text format
+        // since the MRChem file names end by .tree, we assume that this one is in text format
         orb.defcomplex();
         orb.alloc(1);
         orb.CompC[0]->loadTreeTXT(fname_co.str());

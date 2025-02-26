@@ -120,13 +120,13 @@ protected:
     std::vector<ComplexDouble> coef_exp;
     std::vector<QMOperatorVector> oper_exp;
 
-    Orbital applyOperTerm(int n, const Orbital& inp);
-    Orbital daggerOperTerm(int n, const Orbital& inp);
+    Orbital applyOperTerm(int n, const Orbital &inp);
+    Orbital daggerOperTerm(int n, const Orbital &inp);
     ComplexDouble traceOperTerm(int n, const Nuclei &nucs);
     std::vector<ComplexDouble> getCoefVector() const;
 };
 
-    inline RankZeroOperator operator*(double a, RankZeroOperator A) {
+inline RankZeroOperator operator*(double a, RankZeroOperator A) {
     RankZeroOperator out;
     out.name() = A.name();
     for (int i = 0; i < A.oper_exp.size(); i++) {

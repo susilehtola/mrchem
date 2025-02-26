@@ -81,8 +81,8 @@ void CoulombPotential::setup(double prec) {
     if (hasDensity()) {
         setupGlobalPotential(prec);
     } else if (mrcpp::mpi::numerically_exact) {
-       setupGlobalDensity(prec);
-       setupGlobalPotential(prec);
+        setupGlobalDensity(prec);
+        setupGlobalPotential(prec);
     } else {
         // Keep each local contribution a bit
         // more precise than strictly necessary
@@ -102,7 +102,7 @@ void CoulombPotential::setup(double prec) {
 void CoulombPotential::clear() {
     mrcpp::CompFunction<3>::free(); // delete FunctionTree pointers
     this->density.free();           // delete FunctionTree pointers
-    clearApplyPrec();                            // apply_prec = -1
+    clearApplyPrec();               // apply_prec = -1
 }
 
 /** @brief compute Coulomb potential
@@ -119,7 +119,7 @@ void CoulombPotential::setupGlobalPotential(double prec) {
     mrcpp::CompFunction<3> &V = *this;
     mrcpp::CompFunction<3> &rho = this->density;
 
-    if (V.getNNodes()>8) MSG_ERROR("Potential not properly cleared");
+    if (V.getNNodes() > 8) MSG_ERROR("Potential not properly cleared");
 
     // Adjust precision by system size
     double abs_prec = prec / rho.norm();

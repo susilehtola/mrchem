@@ -132,7 +132,6 @@ TEST_CASE("PointNucleusHFYGB", "[nuclear_operator]") {
     V.clear();
 }
 
-
 TEST_CASE("PointNucleusParabola", "[nuclear_operator]") {
     const double prec = 1.0e-3;
     const double thrs = prec * prec;
@@ -224,7 +223,6 @@ TEST_CASE("PointNucleusParabola", "[nuclear_operator]") {
     }
     V.clear();
 }
-
 
 TEST_CASE("PointNucleusMinimum", "[nuclear_operator]") {
     const double prec = 1.0e-3;

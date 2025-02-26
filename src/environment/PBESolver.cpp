@@ -78,7 +78,7 @@ void PBESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunct
         auto C_pin = this->epsilon.getCavity_p();
         mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
         mrcpp::CompFunction<3> cplxfunc_prod;
-        mrcpp::FunctionTree<3, double>& Tree =  get_func(d_V, d);
+        mrcpp::FunctionTree<3, double> &Tree = get_func(d_V, d);
         mrcpp::multiply(cplxfunc_prod, Tree, d_cav, this->apply_prec, 1);
         // add result into out_gamma
         if (d == 0) {

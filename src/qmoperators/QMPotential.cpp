@@ -26,8 +26,8 @@
 #include <MRCPP/Printer>
 #include <MRCPP/Timer>
 
-#include "qmfunctions/Orbital.h"
 #include "QMPotential.h"
+#include "qmfunctions/Orbital.h"
 
 #include "QMDerivative.h"
 #include "QMIdentity.h"

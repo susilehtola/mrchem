@@ -85,7 +85,8 @@ TEST_CASE("XCOperatorBLYP", "[xc_operator_blyp]") {
     DoubleMatrix E_P = DoubleMatrix::Zero(Phi.size(), Phi.size());
     E_P(0, 0) = -0.4630476513;
     E_P(0, 1) = -0.0654140779;
-    E_P(1, 0) = -0.0654140779;;
+    E_P(1, 0) = -0.0654140779;
+    ;
     E_P(1, 1) = -0.1793674201;
     E_P(2, 2) = -0.1988517872;
     E_P(3, 3) = -0.1988517872;

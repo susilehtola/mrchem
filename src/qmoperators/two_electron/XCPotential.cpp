@@ -85,7 +85,6 @@ void XCPotential::setup(double prec) {
         this->potentials.push_back(std::make_tuple(1.0, v_global));
     }
 
-
     if (plevel == 2) {
         int totNodes = 0;
         int totSize = 0;

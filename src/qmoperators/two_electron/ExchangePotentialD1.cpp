@@ -437,7 +437,7 @@ Orbital ExchangePotentialD1::calcExchange(Orbital phi_p) {
 
     // compute ex_p = sum_i c_i*ex_iip
     Orbital ex_p = phi_p.paramCopy(true);
-    //Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
+    // Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
     mrcpp::linear_combination(ex_p, coef_vec, func_vec, prec);
     print_utils::qmfunction(4, "Applied exchange", ex_p, timer);
     return ex_p;

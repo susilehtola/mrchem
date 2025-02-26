@@ -139,7 +139,7 @@ Orbital ExchangePotentialD2::apply(Orbital phi_p) {
 
     // compute out_p = sum_i c_i*(ex_xip + ex_iyp)
     Orbital out_p = phi_p.paramCopy(true);
-    //Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
+    // Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
     mrcpp::linear_combination(out_p, coef_vec, func_vec, prec);
     print_utils::qmfunction(4, "Applied exchange", out_p, timer);
     return out_p;
@@ -198,7 +198,7 @@ Orbital ExchangePotentialD2::dagger(Orbital phi_p) {
 
     // compute ex_p = sum_i c_i*(ex_ixp + ex_yip)
     Orbital ex_p = phi_p.paramCopy(true);
-    //Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
+    // Eigen::Map<ComplexVector> coefs(coef_vec.data(), coef_vec.size());
     mrcpp::linear_combination(ex_p, coef_vec, func_vec, prec);
     print_utils::qmfunction(4, "Applied exchange", ex_p, timer);
     return ex_p;

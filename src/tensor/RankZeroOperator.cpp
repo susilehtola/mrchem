@@ -23,9 +23,9 @@
  * <https://mrchem.readthedocs.io/>
  */
 
+#include <MRCPP/Parallel>
 #include <MRCPP/Printer>
 #include <MRCPP/Timer>
-#include <MRCPP/Parallel>
 
 #include "RankZeroOperator.h"
 
@@ -43,7 +43,7 @@ namespace mrchem {
  *
  * Converts std::vector<std::complex<double> > to Eigen::VectorXcd
  */
-    std::vector<ComplexDouble> RankZeroOperator::getCoefVector() const {
+std::vector<ComplexDouble> RankZeroOperator::getCoefVector() const {
     int nCoefs = this->coef_exp.size();
     std::vector<ComplexDouble> out(nCoefs);
     for (int i = 0; i < nCoefs; i++) out[i] = this->coef_exp[i];
@@ -200,9 +200,7 @@ RankZeroOperator &RankZeroOperator::operator-=(const RankZeroOperator &O) {
  */
 void RankZeroOperator::setup(double prec) {
     for (auto &i : this->oper_exp) {
-        for (int j = 0; j < i.size(); j++) {
-            i[j]->setup(prec);
-        }
+        for (int j = 0; j < i.size(); j++) { i[j]->setup(prec); }
     }
 }
 
@@ -415,10 +413,10 @@ ComplexDouble RankZeroOperator::trace(OrbitalVector &Phi) {
     std::vector<ComplexDouble> phi_vec(Phi.size());
     auto phiOPhi = mrcpp::dot(Phi, OPhi);
     ComplexDouble out = 0.0;
-    for (int i=0; i<Phi.size(); i++){
+    for (int i = 0; i < Phi.size(); i++) {
         eta[i] = Phi[i].occ();
         phi_vec[i] = phiOPhi[i];
-        out += eta[i]*phi_vec[i];
+        out += eta[i] * phi_vec[i];
     }
 
     std::stringstream o_name;
@@ -461,7 +459,7 @@ ComplexDouble RankZeroOperator::trace(OrbitalVector &Phi, OrbitalVector &X, Orbi
     o_name << "Trace " << O.name() << "(rho_1)";
     mrcpp::print::tree(2, o_name.str(), std::max(x_nodes, y_nodes), std::max(x_size, y_size), t1.elapsed());
 
-    ComplexVector  eta = orbital::get_occupations(Phi).cast<ComplexDouble>();
+    ComplexVector eta = orbital::get_occupations(Phi).cast<ComplexDouble>();
     return eta.dot(x_vec + y_vec);
 }
 
@@ -486,21 +484,21 @@ ComplexDouble RankZeroOperator::trace(const Nuclei &nucs) {
  * This consecutively applies all components of a particular term of the operator
  * expansion to the input orbital.
  */
-Orbital RankZeroOperator::applyOperTerm(int n, const Orbital& inp) {
+Orbital RankZeroOperator::applyOperTerm(int n, const Orbital &inp) {
     if (n >= this->oper_exp.size()) MSG_ABORT("Invalid oper term");
     Orbital out;
     mrcpp::deep_copy(out, inp);
 
     if (inp.getNNodes() == 0) return out;
-    int i=0;
-     for (auto O_nm : this->oper_exp[n]) {
+    int i = 0;
+    for (auto O_nm : this->oper_exp[n]) {
         if (O_nm == nullptr) MSG_ABORT("Invalid oper term");
         out = O_nm->apply(out);
     }
     return out;
 }
 
-Orbital RankZeroOperator::daggerOperTerm(int n, const Orbital& inp) {
+Orbital RankZeroOperator::daggerOperTerm(int n, const Orbital &inp) {
     if (n >= this->oper_exp.size()) MSG_ABORT("Invalid oper term");
     Orbital out;
     mrcpp::deep_copy(out, inp);

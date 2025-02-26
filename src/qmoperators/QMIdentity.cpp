@@ -25,8 +25,8 @@
 
 #include <MRCPP/Printer>
 
-#include "qmfunctions/Orbital.h"
 #include "QMIdentity.h"
+#include "qmfunctions/Orbital.h"
 
 #include "qmfunctions/orbital_utils.h"
 

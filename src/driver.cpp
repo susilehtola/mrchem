@@ -27,8 +27,8 @@
 #include <MRCPP/Printer>
 #include <MRCPP/Timer>
 
-#include <filesystem>
 #include "driver.h"
+#include <filesystem>
 
 #include "chemistry/Molecule.h"
 #include "chemistry/Nucleus.h"
@@ -51,12 +51,12 @@
 #include "qmfunctions/density_utils.h"
 #include "qmfunctions/orbital_utils.h"
 
+#include "qmoperators/one_electron/AZoraPotential.h"
 #include "qmoperators/one_electron/ElectricFieldOperator.h"
 #include "qmoperators/one_electron/KineticOperator.h"
 #include "qmoperators/one_electron/NuclearGradientOperator.h"
 #include "qmoperators/one_electron/NuclearOperator.h"
 #include "qmoperators/one_electron/ZoraOperator.h"
-#include "qmoperators/one_electron/AZoraPotential.h"
 
 #include "qmoperators/one_electron/H_BB_dia.h"
 #include "qmoperators/one_electron/H_BM_dia.h"
@@ -83,8 +83,8 @@
 #include "environment/LPBESolver.h"
 #include "environment/PBESolver.h"
 #include "environment/Permittivity.h"
-#include "surface_forces/SurfaceForce.h"
 #include "properties/hirshfeld/HirshfeldPartition.h"
+#include "surface_forces/SurfaceForce.h"
 
 #include "mrdft/Factory.h"
 
@@ -563,7 +563,7 @@ void driver::scf::calc_properties(const json &json_prop, Molecule &mol, const js
                 el.row(k) = h.trace(Phi).real();
                 h.clear();
             }
-        // calculate electronic gradient using the surface integrals method
+            // calculate electronic gradient using the surface integrals method
         } else if (json_prop["geometric_derivative"]["geom-1"]["method"] == "surface_integrals") {
             double prec = json_prop["geometric_derivative"]["geom-1"]["precision"];
             std::string leb_prec = json_prop["geometric_derivative"]["geom-1"]["surface_integral_precision"];
@@ -573,9 +573,7 @@ void driver::scf::calc_properties(const json &json_prop, Molecule &mol, const js
             auto &nuc = G.getNuclear();
             auto &el = G.getElectronic();
             // set electronic gradient
-            for (int k = 0; k < mol.getNNuclei(); k++) {
-                el.row(k) = surfaceForces.row(k) - nuc.row(k);
-            }
+            for (int k = 0; k < mol.getNNuclei(); k++) { el.row(k) = surfaceForces.row(k) - nuc.row(k); }
         } else {
             MSG_ABORT("Invalid method for geometric derivative");
         }
@@ -639,9 +637,9 @@ void driver::scf::calc_properties(const json &json_prop, Molecule &mol, const js
             mrchem::density::compute(prec, rho, Phi, DensityType::Total);
             Eigen::VectorXd charges = Eigen::VectorXd::Zero(mol.getNNuclei());
             for (int i = 0; i < mol.getNNuclei(); i++) {
-                if ( ! mrcpp::mpi::my_func(i) ) continue; // my_orb also works for atoms.
+                if (!mrcpp::mpi::my_func(i)) continue; // my_orb also works for atoms.
                 double charge = partitioner.getHirshfeldPartitionIntegral(i, rho, prec);
-                charge = - charge + mol.getNuclei()[i].getCharge();
+                charge = -charge + mol.getNuclei()[i].getCharge();
                 charges(i) = charge;
             }
             mrcpp::mpi::allreduce_vector(charges, mrcpp::mpi::comm_wrk);
@@ -1105,9 +1103,7 @@ void driver::build_fock_operator(const json &json_fock, Molecule &mol, FockBuild
             std::string azora_dir_src = AZORA_POTENTIALS_SOURCE_DIR;
             std::string azora_dir_install = AZORA_POTENTIALS_INSTALL_DIR;
             std::string azora_dir = "";
-            if (json_fock["zora_operator"].contains("azora_potential_path")) {
-                azora_dir = json_fock["zora_operator"]["azora_potential_path"];
-            }
+            if (json_fock["zora_operator"].contains("azora_potential_path")) { azora_dir = json_fock["zora_operator"]["azora_potential_path"]; }
 
             std::string azora_dir_final;
             if (azora_dir != "") {

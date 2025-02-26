@@ -25,8 +25,8 @@
 
 #include <Eigen/Eigenvalues>
 
-#include "MRCPP/Printer"
 #include "MRCPP/Parallel"
+#include "MRCPP/Printer"
 #include <MRCPP/Timer>
 
 #include "utils/NonlinearMaximizer.h"

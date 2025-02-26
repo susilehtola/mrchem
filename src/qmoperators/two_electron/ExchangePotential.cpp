@@ -190,7 +190,7 @@ void ExchangePotential::calcExchange_kij(double prec, Orbital phi_k, Orbital phi
         if (phi_k.isreal() and phi_k.getNNodes() > 0) phi_opt_vec_real.emplace_back(1.0, phi_k.CompD[0]);
         if (phi_j.isreal() and &phi_j != &phi_k and phi_j.getNNodes() > 0) phi_opt_vec_real.emplace_back(1.0, phi_j.CompD[0]);
         if (phi_i.isreal() and &phi_i != &phi_k and &phi_i != &phi_j and phi_i.getNNodes() > 0) phi_opt_vec_real.emplace_back(1.0, phi_i.CompD[0]);
-   } else {
+    } else {
         if (phi_k.iscomplex()) phi_opt_vec_cplx.emplace_back(1.0, phi_k.CompC[0]);
         if (phi_j.iscomplex() and &phi_j != &phi_k) phi_opt_vec_cplx.emplace_back(1.0, phi_j.CompC[0]);
         if (phi_i.iscomplex() and &phi_i != &phi_k and &phi_i != &phi_j) phi_opt_vec_cplx.emplace_back(1.0, phi_i.CompC[0]);

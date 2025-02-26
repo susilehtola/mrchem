@@ -30,21 +30,20 @@
 
 #include "NuclearOperator.h"
 
-#include<fstream>
-#include<limits>
-#include<nlohmann/json.hpp>
+#include <fstream>
+#include <limits>
+#include <nlohmann/json.hpp>
 
-#include "analyticfunctions/PointNucleusHFYGB.h"
-#include "analyticfunctions/PointNucleusParabola.h"
-#include "analyticfunctions/PointNucleusMinimum.h"
-#include "analyticfunctions/FiniteNucleusSphere.h"
 #include "analyticfunctions/FiniteNucleusGaussian.h"
+#include "analyticfunctions/FiniteNucleusSphere.h"
+#include "analyticfunctions/PointNucleusHFYGB.h"
+#include "analyticfunctions/PointNucleusMinimum.h"
+#include "analyticfunctions/PointNucleusParabola.h"
 #include "chemistry/chemistry_utils.h"
 #include "qmfunctions/Density.h"
 #include "qmoperators/QMPotential.h"
-#include "utils/print_utils.h"
 #include "utils/math_utils.h"
-
+#include "utils/print_utils.h"
 
 using mrcpp::Printer;
 using mrcpp::Timer;

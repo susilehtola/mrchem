@@ -213,7 +213,6 @@ TEST_CASE("OrbitalVector", "[orbital_vector]") {
         DoubleVector norms3 = get_norms(Phi);
         REQUIRE(norms3[0] == Approx(1.0));
         REQUIRE(norms3[1] == Approx(1.0));
-
     }
 
     SECTION("orthogonalization") {

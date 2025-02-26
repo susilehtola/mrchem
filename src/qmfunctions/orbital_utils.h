@@ -92,9 +92,9 @@ ComplexVector get_integrals(const OrbitalVector &Phi);
 
 void print(const OrbitalVector &Phi);
 int print_size_nodes(const OrbitalVector &Phi, const std::string &txt = "", bool all = true, int plevel = 0);
-void saveOrbital(const std::string &file, const Orbital& orb, int text_format = 0);
-void saveOrbital(const std::string &file, mrcpp::CompFunction<3>& orb, int text_format = 0);
-void loadOrbital(const std::string &file, Orbital& orb);
+void saveOrbital(const std::string &file, const Orbital &orb, int text_format = 0);
+void saveOrbital(const std::string &file, mrcpp::CompFunction<3> &orb, int text_format = 0);
+void loadOrbital(const std::string &file, Orbital &orb);
 
 } // namespace orbital
 } // namespace mrchem

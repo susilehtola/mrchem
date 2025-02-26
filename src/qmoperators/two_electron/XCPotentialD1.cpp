@@ -50,7 +50,7 @@ mrcpp::FunctionTreeVector<3> XCPotentialD1::setupDensities(double prec, mrcpp::F
     mrcpp::FunctionTreeVector<3> dens_vec;
     if (not this->mrdft->functional().isSpin()) {
 
-       { // Unperturbed total density
+        { // Unperturbed total density
             Timer timer;
             Density &rho = getDensity(DensityType::Total, 0);
             if (rho.Ncomp() == 0) {

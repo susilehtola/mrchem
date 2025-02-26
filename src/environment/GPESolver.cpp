@@ -103,7 +103,7 @@ void GPESolver::computeGamma(mrcpp::CompFunction<3> &potential, mrcpp::CompFunct
         mrcpp::AnalyticFunction<3> d_cav(C_pin->getGradVector()[d]);
         mrcpp::CompFunction<3> cplxfunc_prod;
 
-        mrcpp::FunctionTree<3, double>& Tree =  get_func(d_V, d);
+        mrcpp::FunctionTree<3, double> &Tree = get_func(d_V, d);
         mrcpp::multiply(cplxfunc_prod, Tree, d_cav, this->apply_prec, 1);
         // add result into out_gamma
         if (d == 0) {
@@ -247,13 +247,13 @@ mrcpp::CompFunction<3> &GPESolver::solveEquation(double prec, const Density &rho
 
     Timer t_gamma;
     if (Vr_n.Ncomp() == 0) {
-         mrcpp::CompFunction<3> gamma_0;
-         mrcpp::CompFunction<3> V_tot;
-         gamma_0.func_ptr->isreal = 1;
-         gamma_0.alloc(1);
+        mrcpp::CompFunction<3> gamma_0;
+        mrcpp::CompFunction<3> V_tot;
+        gamma_0.func_ptr->isreal = 1;
+        gamma_0.alloc(1);
 
-         computeGamma(V_vac, gamma_0);
-         this->Vr_n = solvePoissonEquation(gamma_0, rho_el);
+        computeGamma(V_vac, gamma_0);
+        this->Vr_n = solvePoissonEquation(gamma_0, rho_el);
     }
 
     // update the potential/gamma before doing anything with them
