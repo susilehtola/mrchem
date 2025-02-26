@@ -1,6 +1,0 @@
-
-   :omp_threads: Force the number of OpenMP threads.
-
-    **Type** ``int``
-
-    **Default** ``-1``

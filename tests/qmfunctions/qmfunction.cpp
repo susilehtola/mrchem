@@ -199,15 +199,6 @@ TEST_CASE("QMFunction", "[qmfunction]") {
             REQUIRE(std::real(func.complex().integrate()) == Approx(std::real(i*f_int)));
             REQUIRE(std::imag(func.complex().integrate()) == Approx(std::imag(i*f_int)));
         }
-        // SECTION("unitary rotation") {
-        //      double re = std::sin(0.5);
-        //      double im = std::cos(0.5);
-        //      ComplexDouble c(re, im);
-        //      func.rescale(c);
-        //      REQUIRE(func.norm() == Approx(ref_norm));
-        //      REQUIRE(func.real().integrate() == Approx(re * f_int - im * g_int));
-        //      REQUIRE(func.complex().integrate() == Approx(im * f_int + re * g_int));
-         // }
     }
 
     SECTION("add shared function") {

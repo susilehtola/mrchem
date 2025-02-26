@@ -56,9 +56,9 @@ double compute_occupation(const Orbital &phi, DensityType dens_spin);
 
 double density::compute_occupation(const Orbital &phi, DensityType dens_spin) {
     double occ_a(0.0), occ_b(0.0), occ_p(0.0);
-    if (phi.spin() == SPIN::Alpha) occ_a = (double)phi.occ();
-    if (phi.spin() == SPIN::Beta) occ_b = (double)phi.occ();
-    if (phi.spin() == SPIN::Paired) occ_p = (double)phi.occ();
+    if (phi.spin() == SPIN::Alpha) occ_a = static_cast<double>(phi.occ());
+    if (phi.spin() == SPIN::Beta) occ_b = static_cast<double>(phi.occ());
+    if (phi.spin() == SPIN::Paired) occ_p = static_cast<double>(phi.occ());
 
     double occup(0.0);
     if (dens_spin == DensityType::Total) occup = occ_a + occ_b + occ_p;
