@@ -81,7 +81,7 @@ Density density::compute(double prec, Orbital phi, DensityType spin) {
     if (std::abs(occ) < mrcpp::MachineZero) return Density(false);
 
     Density rho(false);
-    mrcpp::multiply(-1.0, rho, occ, phi, phi, false, false, true); // the last "true" means use complex conjugate of the first phi
+    mrcpp::multiply(prec, rho, occ, phi, phi, -1, false, false, true); // the last "true" means use complex conjugate of the first phi
 
     return rho;
 }

@@ -75,8 +75,8 @@ TEST_CASE("CoulombOperator", "[coulomb_operator]") {
     DoubleMatrix E_P = DoubleMatrix::Zero(Phi.size(), Phi.size());
 
     E_P(0, 0) = 3.1676468518;
-    E_P(0, 1) = 0.262570192;
-    E_P(1, 0) = 0.262570192;
+    E_P(0, 1) = 0.262570199;
+    E_P(1, 0) = 0.262570199;
     E_P(1, 1) = 1.6980679074;
     E_P(2, 2) = 1.8983578764;
     E_P(3, 3) = 1.8983578764;
