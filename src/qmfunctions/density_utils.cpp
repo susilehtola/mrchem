@@ -79,8 +79,8 @@ double density::compute_occupation(const Orbital &phi, DensityType dens_spin) {
 Density density::compute(double prec, Orbital phi, DensityType spin) {
     double occ = density::compute_occupation(phi, spin);
     if (std::abs(occ) < mrcpp::MachineZero) return Density(false);
-
     Density rho(false);
+    mrcpp::copy_grid(rho, phi);
     mrcpp::multiply(prec, rho, occ, phi, phi, -1, false, false, true); // the last "true" means use complex conjugate of the first phi
 
     return rho;
