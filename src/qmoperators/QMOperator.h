@@ -66,6 +66,7 @@ public:
     }
 
     double prec() { return this->apply_prec; }
+    bool isImag() { return this->imag; }
 
     friend RankZeroOperator;
 
@@ -95,6 +96,7 @@ protected:
     virtual Orbital apply(Orbital inp) = 0;
     virtual Orbital dagger(Orbital inp) = 0;
     virtual QMOperatorVector apply(std::shared_ptr<QMOperator> &O) = 0;
+    bool imag = false; // add imaginary unit prefactor, for faster application
 };
 
 } // namespace mrchem

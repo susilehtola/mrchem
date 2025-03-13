@@ -132,7 +132,7 @@ void QMPotential::calc(mrcpp::CompFunction<3> &out, mrcpp::CompFunction<3> &inp,
     double prec = this->apply_prec;
     if (out.Ncomp() > 0) MSG_ABORT("Output not empty");
     if (out.isShared()) MSG_ABORT("Cannot share this function");
-    if (dagger) MSG_ERROR("Not implemented");
+    if (dagger and inp.iscomplex()) MSG_ERROR("Not implemented");
     if (inp.conjugate()) MSG_ERROR("Not implemented");
 
     mrcpp::CompFunction<3> &V = *this;

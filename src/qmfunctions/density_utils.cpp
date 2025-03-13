@@ -195,7 +195,6 @@ void density::compute_local_XY(double prec, Density &rho, OrbitalVector &Phi, Or
 
             Density rho_x(false);
             Density rho_y(false);
-            MSG_ERROR("Complex trees not yet included");
             mrcpp::multiply(rho_x, Phi[i], X[i], mult_prec, false, false, true); // last true means complex conjugate of Phi[i]
             mrcpp::multiply(rho_y, Y[i], Phi[i], mult_prec, false, false, true); // last true means complex conjugate of Y[i]
             rho.add(occ, rho_x);

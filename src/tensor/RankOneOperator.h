@@ -47,6 +47,10 @@ public:
     ComplexVector trace(OrbitalVector &phi);
     ComplexVector trace(OrbitalVector &phi, OrbitalVector &x, OrbitalVector &y);
     ComplexVector trace(const Nuclei &nucs);
+    bool isImag() { return this->imag; }
+
+protected:
+    bool imag = false; // value will be taken from RankZeroOperator
 };
 
 namespace tensor {

@@ -47,15 +47,17 @@ namespace mrchem {
 
 QMDerivative::QMDerivative(int d, std::shared_ptr<DerivativeOperator<3>> D, bool im)
         : QMOperator()
-        , imag(im)
         , apply_dir(d)
-        , derivative(D) {}
+        , derivative(D) {
+    imag = im;
+}
 
 QMDerivative::QMDerivative(const QMDerivative &inp)
         : QMOperator()
-        , imag(inp.imag)
         , apply_dir(inp.apply_dir)
-        , derivative(inp.derivative) {}
+        , derivative(inp.derivative) {
+    imag = inp.imag;
+}
 
 Orbital QMDerivative::apply(Orbital inp) {
     if (this->apply_prec < 0.0) MSG_ERROR("Uninitialized operator");

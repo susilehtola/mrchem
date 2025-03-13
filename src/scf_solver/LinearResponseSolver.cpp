@@ -76,8 +76,8 @@ json LinearResponseSolver::optimize(double omega, Molecule &mol, FockBuilder &F_
     ComplexMatrix F_mat_y = F_mat_0 - omega * ComplexMatrix::Identity(Phi_0.size(), Phi_0.size());
 
     RankZeroOperator V_0 = F_0.potential();
-    RankZeroOperator V_1 = F_1.perturbation() + F_1.potential();
-
+    RankZeroOperator V_1 = F_1.perturbation();
+    if( F_1.potential().isImag() == F_1.perturbation().isImag()) V_1 += F_1.potential();
     double err_o = 1.0;
     double err_t = 1.0;
     DoubleVector errors_x = DoubleVector::Zero(Phi_0.size());

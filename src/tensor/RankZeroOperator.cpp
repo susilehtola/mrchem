@@ -59,6 +59,7 @@ RankZeroOperator RankZeroOperator::get(int i) {
     auto Q_i = this->oper_exp[i];
     out.coef_exp.push_back(c_i);
     out.oper_exp.push_back(Q_i);
+    out.imag = this->imag;
     return out;
 }
 
@@ -99,6 +100,7 @@ RankZeroOperator RankZeroOperator::operator()(RankZeroOperator B) {
             out.oper_exp.push_back(tmp);
         }
     }
+    out.imag = this->imag;
     return out;
 }
 
@@ -112,6 +114,7 @@ RankZeroOperator &RankZeroOperator::operator=(QMOperator_p O) {
     QMOperatorVector tmp;
     tmp.push_back(O);
     this->oper_exp.push_back(tmp);
+    this->imag = O->imag;
     return *this;
 }
 
@@ -148,6 +151,7 @@ RankZeroOperator &RankZeroOperator::operator=(const RankZeroOperator &O) {
         this->name() = O.name();
         this->coef_exp = O.coef_exp;
         this->oper_exp = O.oper_exp;
+        this->imag = O.imag;
     }
     return *this;
 }

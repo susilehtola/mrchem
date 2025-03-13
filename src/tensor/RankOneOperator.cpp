@@ -34,6 +34,7 @@ template <int I> RankOneOperator<I> RankOneOperator<I>::operator()(RankZeroOpera
     RankOneOperator<I> &A = *this;
     RankOneOperator<I> out;
     for (int i = 0; i < I; i++) out[i] = A[i](B);
+    out.imag = A[0].isImag();
     return out;
 }
 

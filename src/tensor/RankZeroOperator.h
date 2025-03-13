@@ -115,6 +115,9 @@ public:
     friend RankZeroOperator operator+(RankZeroOperator A, RankZeroOperator B);
     friend RankZeroOperator operator-(RankZeroOperator A, RankZeroOperator B);
 
+    bool isImag() { return this->imag; }
+    void setImag(bool im) { this->imag = im; }
+
 protected:
     std::string oper_name{"O"};
     std::vector<ComplexDouble> coef_exp;
@@ -124,6 +127,7 @@ protected:
     Orbital daggerOperTerm(int n, const Orbital &inp);
     ComplexDouble traceOperTerm(int n, const Nuclei &nucs);
     std::vector<ComplexDouble> getCoefVector() const;
+    bool imag = false; // value will be taken from QMOperator
 };
 
 inline RankZeroOperator operator*(double a, RankZeroOperator A) {
@@ -133,6 +137,7 @@ inline RankZeroOperator operator*(double a, RankZeroOperator A) {
         out.coef_exp.push_back(a * A.coef_exp[i]);
         out.oper_exp.push_back(A.oper_exp[i]);
     }
+    out.imag = A.imag;
     return out;
 }
 
@@ -154,12 +159,15 @@ inline RankZeroOperator operator*(RankZeroOperator A, RankZeroOperator B) {
             out.oper_exp.push_back(tmp);
         }
     }
+    out.imag = A.imag;
     return out;
 }
 
 inline RankZeroOperator operator+(RankZeroOperator A, RankZeroOperator B) {
     RankZeroOperator out;
     out.name() = A.name() + " + " + B.name();
+    if (not(A.imag == B.imag)) MSG_ABORT("Cannot add real and imaginary operators " + out.name());
+    out.imag = A.imag;
     for (int i = 0; i < A.oper_exp.size(); i++) {
         out.coef_exp.push_back(A.coef_exp[i]);
         out.oper_exp.push_back(A.oper_exp[i]);
@@ -174,6 +182,8 @@ inline RankZeroOperator operator+(RankZeroOperator A, RankZeroOperator B) {
 inline RankZeroOperator operator-(RankZeroOperator A, RankZeroOperator B) {
     RankZeroOperator out;
     out.name() = A.name() + " - " + B.name();
+    if (not(A.imag == B.imag)) MSG_ABORT("Cannot add real and imaginary operators " + out.name());
+    out.imag = A.imag;
     for (int i = 0; i < A.oper_exp.size(); i++) {
         out.coef_exp.push_back(A.coef_exp[i]);
         out.oper_exp.push_back(A.oper_exp[i]);
