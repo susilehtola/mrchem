@@ -41,16 +41,7 @@ from .atoms import (
     unquoted_str_t,
 )
 
-try:
-    import pyparsing as pp
-
-    if pp.__version__.split(".")[0] < "3":
-        # Import local copy
-        from . import pyparsing as pp  # type: ignore
-except ImportError:
-    # Import local copy
-    from . import pyparsing as pp  # type: ignore
-
+import pyparsing as pp
 
 def grammar(*, has_complex: bool = False) -> pp.ParserElement:
     """The Getkw recursive grammar.

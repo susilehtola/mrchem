@@ -26,7 +26,7 @@
 from json import dumps
 from pathlib import Path
 
-from .input_parser.plumbing import pyparsing as pp
+import pyparsing as pp
 
 
 def parse_files(user_dict, direction=None):
